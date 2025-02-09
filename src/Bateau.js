@@ -36,6 +36,15 @@ class Bateau{
             this.#case_fin = new Coord(this.case_debut.x,this.case_debut.y+this.taille-1);
             this.#case_interdite_fin = new Coord(this.case_fin.x+1,this.case_fin.y+1);
         }
+
+        console.log("debut");
+        console.log(this.#case_debut);
+        console.log("fin");
+        console.log(this.#case_fin);
+        console.log("debut_interdit");
+        console.log(this.#case_interdite_debut);
+        console.log("fin_interdit");
+        console.log(this.#case_interdite_fin);
     }
 
 
