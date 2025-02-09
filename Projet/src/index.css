@@ -1,0 +1,23 @@
+.grille{
+    display: grid;
+    grid-template-columns: repeat(10, 50px);
+    grid-auto-rows: 50px;
+    /*margin-top: 20px; */
+}
+
+.vide{
+     background: #f4f4f4; 
+    border: 1px black solid;
+}
+
+
+.interdit{
+    background: red; 
+    border: 1px black solid;
+}
+
+
+.bateau{
+    background: black; 
+    border: 1px black solid;
+}
