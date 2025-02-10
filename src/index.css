@@ -12,12 +12,17 @@
 
 
 .interdit{
-    background: red; 
+    background: grey; 
     border: 1px black solid;
 }
 
 
 .bateau{
     background: black; 
+    border: 1px black solid;
+}
+
+.tirer{
+    background: red; 
     border: 1px black solid;
 }

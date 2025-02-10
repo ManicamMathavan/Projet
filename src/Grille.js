@@ -1,5 +1,7 @@
+import Bateau from "./Bateau.js";
 import Case from "./Case.js";
 import Direction from "./Direction.js";
+import Etat from "./Etat.js";
 class Grille {
   #largeur;
   #hauteur;
@@ -11,6 +13,51 @@ class Grille {
     this.#bateaux = [];
     this.#grille = this.remplirGrille(); //remplir la grille de cases vides
   }
+
+  deplacerBateau(bateau, coord) {
+    const copie_bateau= new Bateau(bateau.nom,bateau.taille,bateau.direction,bateau.case_debut.x+coord.x,bateau.case_debut.y+coord.y,this);
+    if(this.conditionBateau(copie_bateau,1)){
+      console.log("deplacement possible");
+      this.retirerBateau(bateau);
+      // this.ajouterBateau(copie_bateau);
+    }
+  }
+
+
+  retirerBateau(bateau) {
+    this.#bateaux = this.#bateaux.filter((bateau_courant) => bateau_courant !== bateau);
+    this.appliquerFonctionSurBateau(bateau,
+      (cellule) => {
+        cellule.retirerBateau();
+      }
+    );
+  }
+
+
+
+  tirer(coord){
+    const cellule = this.grille[coord.y][coord.x]
+    if(this.coordValide(coord) && !cellule.tirer){
+      const bateau=cellule.bateau;
+      cellule.tirer = true;
+
+      if (bateau==null){
+        return Etat.RATE;
+      }
+      if(this.bateauDetruit(bateau)){
+        return Etat.COULE;
+      }
+
+
+      if(cellule.bateau!=null){
+        return Etat.TOUCHE;
+      }
+      
+    }
+    
+  }
+
+
 
   set bateaux(value) {
     this.#bateaux = value;
@@ -55,9 +102,6 @@ class Grille {
 
 
 
-
-
-
   conditionBateau(bateau,valeur_interdite=0) {
     //verifier si le bateau ne depasse pas de la grille
     if (
@@ -88,6 +132,16 @@ class Grille {
     return true;
   }
 
+  bateauDetruit(bateau) {
+    for (let pos_y = bateau.case_debut.y; pos_y <= bateau.case_fin.y; pos_y++) {
+      for (let pos_x = bateau.case_debut.x; pos_x <= bateau.case_fin.x; pos_x++) {
+        if (!this.coordValide({ x: pos_x, y: pos_y }) || !this.grille[pos_y][pos_x].tirer) {
+          return false;
+        }
+    }
+  }
+  return true;
+}
 
 
   appliquerFonctionSurBateau(bateau,fonction_zone_interdite,fonction_case_bateau=fonction_zone_interdite){ 
@@ -109,6 +163,8 @@ class Grille {
     
 }
 
+
+
  
 
 
@@ -120,45 +176,19 @@ class Grille {
     }
 
     this.#bateaux.push(bateau);
-
     this.appliquerFonctionSurBateau(bateau,
       (cellule_interdit) => {
         cellule_interdit.interdit++;
       },
       (cellule_bateau) => {
-        console.log("bcezcz")
         cellule_bateau.bateau = bateau;
         cellule_bateau.interdit++;
       }
     );
 
-    // if (bateau.direction == Direction.HORIZONTAL) {
-    //   //parcourir les cases et les zone autour du bateau et les marquer comme interdites
-    //   for (let pos_y = bateau.case_debut.y-1; pos_y <= bateau.case_fin.y+1; pos_y++) {
-    //     for( let pos_x=bateau.case_debut.x-1; pos_x<=bateau.case_fin.x+1; pos_x++){
-    //       if(this.coordValide({x:pos_x, y:pos_y})) {
-    //         this.grille[pos_y][pos_x].interdit++;
-    //         if(pos_y == bateau.case_debut.y && pos_x >= bateau.case_debut.x && pos_x <= bateau.case_fin.x){
-    //           this.grille[pos_y][pos_x].bateau = bateau
-    //         }
-    //       }
-    //     }
-    //   }
-    // } else {sss
-    //   for (let i = bateau.case_debut.y; i <= bateau.case_fin.y; i++) {
-    //     this.grille[i][bateau.case_debut.x].bateau = bateau;
-    //   }
-    // }
-  
+
 }
 }
 
-// const grille = new Grille();
-// grille.ajouterBateau(
-//   new Bateau("bateau1", 3, Direction.HORIZONTAL, 1, 1, grille)
-// );
-// console.log(grille.grille[0][0]);
-
-// console.log(grille.grille);
 
 export default Grille;

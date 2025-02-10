@@ -8,6 +8,8 @@ class Case {
     this.#interdit=0;
     this.#bateau = null;
   }
+
+
     set bateau(value){
         this.#bateau = value;
     }
@@ -25,6 +27,11 @@ class Case {
     }
     get interdit(){
       return this.#interdit;
+    }
+
+    retirerBateau(){
+      this.#interdit--;
+      this.#bateau = null;
     }
 
 }
