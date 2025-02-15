@@ -5,24 +5,35 @@
     /*margin-top: 20px; */
 }
 
+.grille>*{
+    border: 1px black solid;
+}
+
 .vide{
      background: #f4f4f4; 
-    border: 1px black solid;
+
 }
 
 
 .interdit{
     background: grey; 
-    border: 1px black solid;
 }
 
 
 .bateau{
     background: black; 
-    border: 1px black solid;
+
 }
 
 .tirer{
     background: red; 
-    border: 1px black solid;
+
+}
+
+.couler{
+    background-color: purple;
+}
+
+.toucher{
+    background-color: maroon;
 }

@@ -3,35 +3,42 @@
 
 import './App.css';
 import Bateau from './Bateau.js';
-import Coord from './Coord.js';
-import Direction from './Direction.js';
+import Coord from './Enum/Coord.js';
+import Direction from './Enum/Direction.js';
+import Etat from './Enum/Etat.js';
+import Sens from './Enum/Sens.js';
 import Grille from './Grille.js';
-
 function change_class(cellule){
 
-  if(cellule.tirer){
+  if(cellule.etat==Etat.TOUCHER){
+    return "toucher"
+  }
+
+  if(cellule.etat==Etat.RATE){
     return "tirer"
+  }
+  if (cellule.etat==Etat.COULER){
+    return "couler"
   }
   if(cellule.bateau){
     return "bateau"
   }
-  if(cellule.interdit){
+
+  if(cellule.interdit>=1){
     return "interdit"
   }
-
-
   return "vide"
 }
 
 function Affiche_grille(){
    let grille = new Grille(10,10);
-   const bateau=new Bateau("bateau1", 3,Direction.HORIZONTAL, 3, 2, grille)
-   const bateau1=new Bateau("bateau1", 3,Direction.VERTICAL, 5, 4, grille)
-   grille.ajouterBateau(bateau);
-   grille.ajouterBateau(bateau1);
-  grille.deplacerBateau(bateau,new Coord(0,2));
-  //  grille.tirer(new Coord(0,0));
-  // //  grille.tirer(new Coord(1,0));
+   const bateau=new Bateau("bateau1", 3,Direction.HORIZONTAL, 3, 2)
+   grille.ajouterBateauGrille(bateau)
+   grille.tirer(new Coord(3,2))
+   grille.tirer(new Coord(4,2))
+   grille.deplacerBateau(bateau,Sens.DROITE);
+   grille.tirer(new Coord(6,2))
+  //  grille.deplacerBateau(bateau,Sens.DROITE);
 
    console.log(grille.grille);
   return (

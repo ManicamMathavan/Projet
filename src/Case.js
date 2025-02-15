@@ -1,26 +1,32 @@
-
+import Etat from "./Enum/Etat";
 class Case {
-    #tirer;
-    #interdit;
     #bateau;
+    #etat;
+    #interdit;
   constructor() {
-    this.#tirer = false;
+    //état d'une case
+    this.#etat = Etat.VIDE;
+    //état d'une zone interdite sur la case
     this.#interdit=0;
-    this.#bateau = null;
+    //bateau présent sur la case, ou null si aucun bateau
+    this.#bateau=null
   }
+
+
 
 
     set bateau(value){
-        this.#bateau = value;
+      this.#bateau = value;
     }
     get bateau(){
-        return this.#bateau
+      return this.#bateau
     }
-  set tirer (value){
-    this.#tirer = value;
+
+   set etat (value){
+    this.#etat = value;
   }
-    get tirer(){
-      return this.#tirer;
+    get etat(){
+      return this.#etat;
     }
     set interdit(value){  
       this.#interdit = value;
@@ -31,7 +37,16 @@ class Case {
 
     retirerBateau(){
       this.#interdit--;
-      this.#bateau = null;
+      this.bateau = null;
+    }
+     
+    /**
+     * Ajoute les coordonnes d'un objet Coord a la coordonne actuelle
+     * @param {Coord} coord - objet Coord a ajouter
+     */
+    addCoord(coord){
+      this.x+=coord.x;
+      this.y+=coord.y;
     }
 
 }
