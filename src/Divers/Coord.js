@@ -8,5 +8,9 @@ class Coord {
     return new Coord(coord1.x + coord2.x, coord1.y + coord2.y);
   }
 
+  static subCoord(coord1, coord2) {
+    return new Coord(coord1.x - coord2.x, coord1.y - coord2.y);
+  }
+
 }
 export default Coord;

@@ -1,69 +1,47 @@
 // import reactLogo from './assets/react.svg'
 // import viteLogo from '/vite.svg'
-
+import { useState } from 'react';
+import AfficheGrilleTire from './affichage/AfficheGrilleTire';
 import './App.css';
 import Bateau from './Bateau.js';
-import Coord from './Enum/Coord.js';
-import Direction from './Enum/Direction.js';
-import Etat from './Enum/Etat.js';
-import Sens from './Enum/Sens.js';
+import Context from './Context.jsx';
+import Direction from './Divers/Direction.js';
 import Grille from './Grille.js';
-function change_class(cellule){
+import Jeu from './Jeu.js';
 
-  if(cellule.etat==Etat.TOUCHER){
-    return "toucher"
-  }
+let grilleTest = new Grille(10,10);
+let bateau = new Bateau("bateau1",3,Direction.HORIZONTAL,3,2)
+let bateau2 = new Bateau("bateau2",3,Direction.HORIZONTAL,3,2)
+Jeu.genererBateau(bateau,2,3,grilleTest)
+Jeu.genererBateau(bateau2,2,3,grilleTest)
+grilleTest.ajouterBateau(bateau)
 
-  if(cellule.etat==Etat.RATE){
-    return "tirer"
-  }
-  if (cellule.etat==Etat.COULER){
-    return "couler"
-  }
-  if(cellule.bateau){
-    return "bateau"
-  }
+/* eslint-disable react/prop-types */
+export function ContextProvider({ children, grille }) {
+  const [refresh,setRefresh] = useState(0)
+  const forceRefresh = () => {
+    setRefresh( refresh == 0 ? 1 : 0);
+};
 
-  if(cellule.interdit>=1){
-    return "interdit"
-  }
-  return "vide"
-}
-
-function Affiche_grille(){
-   let grille = new Grille(10,10);
-   const bateau=new Bateau("bateau1", 3,Direction.HORIZONTAL, 3, 2)
-   grille.ajouterBateauGrille(bateau)
-   grille.tirer(new Coord(3,2))
-   grille.tirer(new Coord(4,2))
-   grille.deplacerBateau(bateau,Sens.DROITE);
-   grille.tirer(new Coord(6,2))
-  //  grille.deplacerBateau(bateau,Sens.DROITE);
-
-   console.log(grille.grille);
   return (
-    <div className="grille">
-      {grille.grille.map((ligne, ligne_index) =>
-      ligne.map((cellule,colonne_index) => (
-        <div className= {change_class(cellule)}  key={`${ligne_index}-${colonne_index}`}>
-        </div>
-          )
-        )
-      )}
-    </div>
-    
-
-  )
+    <Context.Provider value={{grille,forceRefresh}}>
+      {children}
+    </Context.Provider>
+  );
 }
+
+
+
 
 function App() {
-  // const [count, setCount] = useState(0)
-
   return (
-    <>
-    <Affiche_grille/>
-    </>
+    
+    <ContextProvider grille={grilleTest} >   
+    <div style={{display: 'flex', flexDirection: 'row'}}>
+    {/* <AfficheGrillePlacage></AfficheGrillePlacage> */}
+    <AfficheGrilleTire></AfficheGrilleTire>
+    </div>
+    </ContextProvider>
   )
 }
-
 export default App

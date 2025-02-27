@@ -1,4 +1,4 @@
-import Etat from "./Enum/Etat";
+import Etat from "./Divers/Etat";
 class Case {
     #bateau;
     #etat;
@@ -40,15 +40,6 @@ class Case {
       this.bateau = null;
     }
      
-    /**
-     * Ajoute les coordonnes d'un objet Coord a la coordonne actuelle
-     * @param {Coord} coord - objet Coord a ajouter
-     */
-    addCoord(coord){
-      this.x+=coord.x;
-      this.y+=coord.y;
-    }
-
 }
 
 export default Case;
