@@ -1,6 +1,6 @@
 import Bateau from "./Bateau.js";
-import Case from "./Case.js";
-import Coord from "./Divers/Coord.js";
+import Cellule from "./Cellule.js";
+import Coord from "./Divers/Coord";
 import Direction from "./Divers/Direction.js";
 import Etat from "./Divers/Etat.js";
 /**@typedef {import('./Divers/BateauNb.js')} BateauNb */
@@ -17,7 +17,7 @@ class Grille {
    * @param {number} [largeur=26] - largeur de la grille
    * @param {number} [hauteur=50] - hauteur de la grille
    * @param {BateauNb[]} [bateaux_a_placer] - tableau contenant les bateaux utiliser dans la grille
-   * @param {Case[][]} [grille=remplirGrille()] - grille de jeu
+   * @param {Cellule[][]} [grille=remplirGrille()] - grille de jeu
    */
   constructor(largeur = 26, hauteur = 50) {
     this.#largeur = largeur;
@@ -37,6 +37,21 @@ class Grille {
     this.#nb_bateau += bateauNb.nb;
     this.#bateaux_a_placer.push(bateauNb);
   }
+
+  /**
+   * Retourne une case de la grille.
+   * @param {number | Coord} x - coordonne x de la case, ou un objet Coord.
+   * @param {number} [y] - coordonne y de la case, si x est un nombre.
+   * @returns {Cellule} la case de la grille.
+   */
+   getCellule(x, y) {
+    
+    if(x instanceof Coord){
+    
+      return this.#grille[x.y][x.x];
+    }
+     return this.#grille[y][x];
+   }
 
   /**
    * Retire 1 au nb de bateau du tableau de bateaux à placer.
@@ -143,7 +158,7 @@ class Grille {
    */
   tirer(coord) {
     if (this.#estContenu(coord)) {
-      const cellule = this.grille[coord.y][coord.x];
+      const cellule = this.getCellule(coord);
       const bateau_cellule = cellule.bateau;
 
       if (bateau_cellule == null) {
@@ -157,6 +172,10 @@ class Grille {
         }
       }
     }
+  }
+
+  estVide(){
+    return this.#nb_bateau <= 0
   }
 
   get nb_bateau() {
@@ -192,11 +211,11 @@ class Grille {
 
   /**
    * Retourne une grille de jeu, initialisée avec des cases vides.
-   * @returns {Case[][]} une grille de jeu
+   * @returns {Cellule[][]} une grille de jeu
    */
   remplirGrille() {
     return Array.from({ length: this.#hauteur }, () =>
-      Array.from({ length: this.#largeur }, () => new Case())
+      Array.from({ length: this.#largeur }, () => new Cellule())
     );
   }
 
@@ -230,7 +249,7 @@ class Grille {
     if (bateau_a_ignore == null) {
         for(let pos_y = bateau.coord_debut.y; pos_y <= bateau.coord_fin.y; pos_y++) {
           for (let pos_x = bateau.coord_debut.x; pos_x <= bateau.coord_fin.x; pos_x++) {
-            if (this.grille[pos_y][pos_x].interdit > 0) {
+            if (this.getCellule(pos_x, pos_y).interdit > 0) {
               return false;
             }
           }
@@ -242,7 +261,7 @@ class Grille {
       // ne pas compter les cases du bateau a ignorer dans les conditions de placements
       for(let pos_y = bateau.coord_debut.y; pos_y <= bateau.coord_fin.y; pos_y++) {
         for (let pos_x = bateau.coord_debut.x; pos_x <= bateau.coord_fin.x; pos_x++) {
-          const cellule = this.grille[pos_y][pos_x];
+          const cellule = this.getCellule(pos_x, pos_y);
           const contenu_zone_interdite = bateau_a_ignore.estContenuInterdit(
             new Coord(pos_x, bateau.coord_debut.y)
           );
@@ -263,12 +282,7 @@ class Grille {
    * @param {Bateau} bateau - Le bateau a détruire
    */
   #detruireBateau(bateau) {
-    //trouver l'index du bateau et le retirer du tableau
-    const index = this.#bateaux_a_placer.findIndex(
-      (element) => element == bateau
-    );
-    if (index != -1) this.#bateaux_a_placer.splice(index, 1);
-
+    this.#nb_bateau--;
     //mettre a jour la grille
     this.#appliquerFonctionSurBateau(
       bateau,
@@ -306,13 +320,13 @@ class Grille {
         pos_x <= bateau.coord_interdite_fin.x;
         pos_x++
       ) {
-        if (this.#estContenu({ x: pos_x, y: pos_y })) {
-          if (bateau.estContenu({ x: pos_x, y: pos_y })) {
+        if (this.#estContenu(new Coord(pos_x, pos_y))) {
+          if (bateau.estContenu(new Coord(pos_x, pos_y))) {
             //appliquer la fonction si la case est un bateau
-            fonction_case_bateau(this.grille[pos_y][pos_x]);
+            fonction_case_bateau(this.getCellule(pos_x, pos_y));
           } else {
             //appliquer la fonction si la case est une zone interdite
-            fonction_zone_interdite(this.grille[pos_y][pos_x]);
+            fonction_zone_interdite(this.getCellule(pos_x, pos_y));
           }
         }
       }
@@ -349,7 +363,7 @@ class Grille {
    * @param {boolean} valeur - La valeur à assigner pour indiquer si la case est touchée (true) ou non (false).
    */
   #modifier_case_bateau_via_case_grille(coord, valeur) {
-    const cellule = this.grille[coord.y][coord.x];
+    const cellule = this.getCellule(coord);
     if (cellule.bateau != null) {
       const bateau_cellule = cellule.bateau;
       const bateau_cellule_debut = cellule.bateau.coord_debut;

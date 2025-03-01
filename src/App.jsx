@@ -1,47 +1,32 @@
 // import reactLogo from './assets/react.svg'
 // import viteLogo from '/vite.svg'
-import { useState } from 'react';
-import AfficheGrilleTire from './affichage/AfficheGrilleTire';
-import './App.css';
-import Bateau from './Bateau.js';
-import Context from './Context.jsx';
-import Direction from './Divers/Direction.js';
-import Grille from './Grille.js';
-import Jeu from './Jeu.js';
+import "./App.css";
+import Bateau from "./Bateau.js";
+import Coord from "./Divers/Coord.js";
+import Direction from "./Divers/Direction.js";
+import Grille from "./Grille.js";
+import Jeu from "./Jeu.js";
+import Affiche2Joueur from "./affichage/Affiche2Joueur.jsx";
+// import AfficheGrilleDeplace from './affichage/AfficheGrilleDeplace.jsx';
 
-let grilleTest = new Grille(10,10);
-let bateau = new Bateau("bateau1",3,Direction.HORIZONTAL,3,2)
-let bateau2 = new Bateau("bateau2",3,Direction.HORIZONTAL,3,2)
-Jeu.genererBateau(bateau,2,3,grilleTest)
-Jeu.genererBateau(bateau2,2,3,grilleTest)
-grilleTest.ajouterBateau(bateau)
+//import AfficheGrillePlacage from './affichage/AfficheGrillePlace.jsx';
+//import AfficheGrilleTire from './affichage/AfficheGrilleTire.jsx';
 
-/* eslint-disable react/prop-types */
-export function ContextProvider({ children, grille }) {
-  const [refresh,setRefresh] = useState(0)
-  const forceRefresh = () => {
-    setRefresh( refresh == 0 ? 1 : 0);
-};
-
+let grilleTest = new Grille(10, 10);
+let bateau = new Bateau("bateau1", 3, Direction.HORIZONTAL, 3, 2);
+let bateau2 = new Bateau("bateau2", 3, Direction.HORIZONTAL, 3, 2);
+let jeu = new Jeu(grilleTest);
+jeu.genererBateau(bateau, 1, 1);
+// jeu.genererBateau(bateau2, 1, 3);
+jeu.joueur1.grille.ajouterBateau(bateau);
+jeu.joueur1.grilleAdverse.ajouterBateau(bateau);
+jeu.joueur1.tirer(new Coord(0,0))
+console.log(jeu.ecran)
+function App() {
+  
   return (
-    <Context.Provider value={{grille,forceRefresh}}>
-      {children}
-    </Context.Provider>
+    // <p>test</p>
+    <Affiche2Joueur jeu={jeu}/>
   );
 }
-
-
-
-
-function App() {
-  return (
-    
-    <ContextProvider grille={grilleTest} >   
-    <div style={{display: 'flex', flexDirection: 'row'}}>
-    {/* <AfficheGrillePlacage></AfficheGrillePlacage> */}
-    <AfficheGrilleTire></AfficheGrilleTire>
-    </div>
-    </ContextProvider>
-  )
-}
-export default App
+export default App;

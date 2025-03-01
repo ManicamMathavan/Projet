@@ -1,5 +1,5 @@
 import Etat from "./Divers/Etat";
-class Case {
+class Cellule {
     #bateau;
     #etat;
     #interdit;
@@ -42,4 +42,4 @@ class Case {
      
 }
 
-export default Case;
+export default Cellule;

@@ -1,127 +1,176 @@
-import { createContext, useContext, useRef, useState } from 'react';
-import Context from '../Context';
-import Direction from '../Divers/Direction';
-import Etat from '../Divers/Etat';
-import AfficheGrille from './AfficheGrille';
+import { createContext, useContext, useEffect, useRef, useState } from "react";
+import JeuContext from "../Context";
+import Direction from "../Divers/Direction";
+import Ecran from "../Divers/Ecran";
+import Etat from "../Divers/Etat";
+import AfficheGrille from "./AfficheGrille";
 
 
-
+function AfficheGrillePlace() {
+  return (
+    <>
+      <LocalContextProvider>
+        <InitGrille />
+        <AffichePlacage />
+      </LocalContextProvider>
+    </>
+  );
+}
 
 //creation du context
-const GrilleContext=createContext();
-    /*eslint-disable react/prop-types */
-  function GrilleContextProvider({children}){
-    const [indiceBateauSelectionne,setIndiceBateauSelectionne]= useState(null);
-    const [refresh,setRefresh] = useState(0)
-    const direction=useRef(Direction.HORIZONTAL)
-    const forceRefresh = () => {
-      setRefresh( refresh == 0 ? 1 : 0);
+const LocalContext = createContext();
+/*eslint-disable react/prop-types */
+function LocalContextProvider({ children }) {
+  const [indiceBateauSelectionne, setIndiceBateauSelectionne] = useState(null);
+  const [localRefresh, setLocalRefresh] = useState(0);
+  const direction = useRef(Direction.HORIZONTAL);
+  const forceLocalRefresh = () => {
+    setLocalRefresh(localRefresh == 0 ? 1 : 0);
   };
 
-     return (
-       <GrilleContext.Provider value={{indiceBateauSelectionne,setIndiceBateauSelectionne,direction,forceRefresh}}>
-         {children}
-       </GrilleContext.Provider>
-     );
+  return (
+    <LocalContext.Provider
+      value={{
+        indiceBateauSelectionne,
+        setIndiceBateauSelectionne,
+        direction,
+        forceLocalRefresh,
+      }}
+    >
+      {children}
+    </LocalContext.Provider>
+  );
+}
 
-     }
+//type enumerer pour determiner action de la souris
+const Mode = Object.freeze({
+  AJOUTER: Symbol("ajouter"),
+  DEPLACER: Symbol("deplacer"),
+});
 
-     //type enumerrer pour determnier action de la souris
-     const Mode=Object.freeze({
-      AJOUTER:Symbol("ajouter"),
-      DEPLACER:Symbol("deplacer")})
+/**
+ * Affiche une grille de jeu, ainsi que des boutons pour ajouter/deplacer des bateaux.
+ * La grille est mise a jour en fonction des actions de l'utilisateur.
+ * @returns {JSX.Element} un JSX Element representant la grille et les boutons.
+ */
+function InitGrille() {
+  const button_contenu = [
+    { text: "Ajouter bateau", mode: Mode.AJOUTER },
+    { text: "Deplacer bateau", mode: Mode.DEPLACER },
+  ];
+
+  const { jeu, forceRefreshJeu,jeuRefresh, joueur } = useContext(JeuContext);
+  const {
+    indiceBateauSelectionne,
+    setIndiceBateauSelectionne,
+    forceLocalRefresh,
+    direction,
+  } = useContext(LocalContext);
 
 
-  /**
-   * Affiche une grille de jeu, ainsi que des boutons pour ajouter/deplacer des bateaux.
-   * La grille est mise a jour en fonction des actions de l'utilisateur.
-   * @returns {JSX.Element} un JSX Element representant la grille et les boutons.
-   */
-  function InitGrille(){
-      const button_contenu=[{text:"Ajouter bateau",mode:Mode.AJOUTER},
-        {text:"Deplacer bateau",mode:Mode.DEPLACER}]
-    const {grille} = useContext(Context);
-    const {indiceBateauSelectionne,setIndiceBateauSelectionne,forceRefresh,direction}= useContext(GrilleContext);
+  //fait apparaitre les boutons quand tout les bateau sont placer
+  const [peutCommencer, setPeutCommencer] = useState(false);
+  const [boutonSelectionner, setBoutonSelectionner] = useState(null);
+  const mode = useRef(Mode.AJOUTER);
+  const bateau_selectionne = useRef(null);
+  console.log(jeu.ecran)
 
-    const [peutCommencer,setPeutCommencer]=useState(false)
-    const [boutonSelectionner,setBoutonSelectionner]=useState(null)
-    const mode=useRef(Mode.AJOUTER)
-    const bateau_selectionne=useRef(null)
+  //fait apparaitre les boutons quand tout les bateau sont placer
+  //à chaque render ou les retirer
+  useEffect(() => {
+    if (joueur.grille.bateaux_a_placer.length == 0) {
+      setPeutCommencer(true);
+    } else {
+      setPeutCommencer(false);
+    }
+    // console.log(jeuRefresh)
+  },[jeuRefresh,joueur.grille.bateaux_a_placer.length])
 
-    //affiche une couleur selon le contenu de la grille
-    function change_class(cellule){
-        if(cellule.etat==Etat.TOUCHER){
-          return "toucher"
-        }
-      
-        if(cellule.etat==Etat.RATE){
-          return "tirer"
-        }
-        if (cellule.etat==Etat.COULER){
-          return "couler"
-        }
-        if(cellule.bateau){
-          return "bateau"
-        }
-      
-        if(cellule.interdit>=1){
-          return "interdit"
-        }
-        return "vide"
+  //affiche une couleur selon le contenu de la grille
+  function change_class(cellule) {
+    if (cellule.etat == Etat.TOUCHER)  return "toucher";
+    if (cellule.etat == Etat.RATE)  return "tirer";
+    if (cellule.etat == Etat.COULER) return "couler";
+    if (cellule.bateau) return "bateau";
+    if (cellule.interdit >= 1)  return "interdit";
+    return "vide";
+  }
+  //gere les clique sur la grille
+  function interagirGrille({ coord }) {
+    if (indiceBateauSelectionne != null && mode.current == Mode.AJOUTER) {
+      joueur.ajouterBateauGrille(indiceBateauSelectionne, coord);
+
+      //verifie si tout les bateau sont placer et fait apparaitre les boutons
+      if (
+        joueur.grille.bateaux_a_placer.length == 0 &&
+        peutCommencer == false
+      ) {
+        setPeutCommencer(true);
       }
+      setIndiceBateauSelectionne(null);
+    }
 
-      //gere les clique sur la grille
-      function interagirGrille(coord){
-        if (indiceBateauSelectionne!=null && mode.current==Mode.AJOUTER){
-            grille.ajouterBateauGrille(indiceBateauSelectionne,coord)
-            if(grille.bateaux_a_placer.length==0 && peutCommencer==false){
-                setPeutCommencer(true)
-              }
-            setIndiceBateauSelectionne(null)
-        }
-
-        if (mode.current==Mode.DEPLACER){
-          console.log(bateau_selectionne)
-          if(bateau_selectionne.current==null){
-            bateau_selectionne.current=grille.grille[coord.y][coord.x].bateau
-          } else{
-            grille.changerCoordBateau(bateau_selectionne.current,coord,direction.current)
-            bateau_selectionne.current=null
-            forceRefresh()
-          }
-        }
-
-
-
+    if (mode.current == Mode.DEPLACER) {
+      if (bateau_selectionne.current == null) {
+        bateau_selectionne.current = joueur.grille.getCellule(coord).bateau;
+      } else {
+        joueur.grille.changerCoordBateau(
+          bateau_selectionne.current,
+          coord,
+          direction.current
+        );
+        bateau_selectionne.current = null;
+        forceLocalRefresh();
       }
-
-
-      //change l'action de la souris
-      function changeMode(index,modeToChange){
-       mode.current=modeToChange
-       setBoutonSelectionner(index)
-      }
-     console.log(grille)
-
-  
-    return (
-      <>
-      <AfficheGrille onClickCell={interagirGrille} change_class={change_class}></AfficheGrille>
-      {/* affichage des boutons */}
-       { button_contenu.map(({text,mode},index)=>
-        <button key={index} onClick={()=>changeMode(index,mode)}
-        style={{color: index === boutonSelectionner ? "red" : "black"}}
-        >{text}</button>)}
-      {peutCommencer && <button onClick={()=>setPeutCommencer(true)}>Commencer</button>}
-
-
-      </>
-      
-  
-    )
+    }
   }
 
+  //change l'action de la souris
+  function changeMode(button_index, modeToChange) {
+    mode.current = modeToChange;
+    setBoutonSelectionner(button_index);
+  }
 
+  function AfficheEcranSuivant(){
+    if (jeu.tour_joueur == 1) {
+      jeu.change_tour_joueur();
+    } else {
+      jeu.change_tour_joueur();
+      jeu.ecran = Ecran.TIRER;
+    }
+    forceRefreshJeu();
+  }
+
+  return (
+    <>
+      <p> {jeu.tour_joueur == 1 ? "joueur1" : "joueur2"}</p>
+      <AfficheGrille
+        onClickCell={interagirGrille}
+        change_class={change_class}
+        grille={joueur.grille}
+      ></AfficheGrille>
+      {/* affichage des boutons */}
+      {button_contenu.map(({ text, mode }, index) => (
+        <button
+          key={index}
+          onClick={() => changeMode(index, mode)}
+          style={{ color: index === boutonSelectionner ? "red" : "black" }}
+        >
+          {text}
+        </button>
+      ))}
+
+      {/* button apparait si la liste des bateaux est vide */}
+      {peutCommencer && (
+        <button
+          onClick={AfficheEcranSuivant}
+        >
+          Commencer
+        </button>
+      )}
+    </>
+  );
+}
 
 /**
  * Affiche les bateaux qui n'ont pas encore ete placer sur la grille,
@@ -129,44 +178,49 @@ const GrilleContext=createContext();
  * direction des bateaux.
  * @return {JSX.Element} Composant React affichant la liste des bateaux.
  */
-  const AffichePlacage = () => {
-    const { grille } = useContext(Context);
-    const {setIndiceBateauSelectionne,indiceBateauSelectionne,direction}=useContext(GrilleContext)
-    const bateaux_a_placer = grille.bateaux_a_placer;
+const AffichePlacage = () => {
+  const { joueur } = useContext(JeuContext);
+  const { setIndiceBateauSelectionne, indiceBateauSelectionne, direction } =
+    useContext(LocalContext);
+  const bateaux_a_placer = joueur.grille.bateaux_a_placer;
 
-
-
-    //selectionne un bateau  en cliquant sur la liste
-  const selectionnerBateau = (indice) => {
-    const bateau= grille.bateaux_a_placer[indice].bateau
-        setIndiceBateauSelectionne(indice);
-        bateau.changer_direction(direction.current)
-        console.log(bateau.direction)
-  }
-
+  //selectionne un bateau  en cliquant sur la liste
+  const selectionnerBateau = (indice_list) => {
+    const bateau = bateaux_a_placer[indice_list].bateau;
+    setIndiceBateauSelectionne(indice_list);
+    bateau.changer_direction(direction.current);
+  };
 
   //change la direction du bateau qui va etre placer
-  const changerDirection = ({target}) => {
-    direction.current=(target.value=='horizontal'?Direction.HORIZONTAL:Direction.VERTICAL)
-    if(indiceBateauSelectionne!=null){
-    const bateau= grille.bateaux_a_placer[indiceBateauSelectionne].bateau
-    bateau.changer_direction(direction.current)
-
-
+  const changerDirection = ({ target }) => {
+    direction.current =
+      target.value == "horizontal" ? Direction.HORIZONTAL : Direction.VERTICAL;
+    if (indiceBateauSelectionne != null) {
+      const bateau = joueur.bateaux_a_placer[indiceBateauSelectionne].bateau;
+      bateau.changer_direction(direction.current);
     }
-  }
+  };
 
   return (
     <>
       <div>
         <label>
-          <input type="radio" name="direction" value={"horizontal"}
-          onChange={changerDirection} defaultChecked/>
+          <input
+            type="radio"
+            name="direction"
+            value={"horizontal"}
+            onChange={changerDirection}
+            defaultChecked
+          />
           horizontal
         </label>
         <label>
-          <input type="radio" name="direction" value={"vertical"}
-          onChange={changerDirection} /> 
+          <input
+            type="radio"
+            name="direction"
+            value={"vertical"}
+            onChange={changerDirection}
+          />
           vertical
         </label>
       </div>
@@ -183,25 +237,10 @@ const GrilleContext=createContext();
         </span>
       ))}
       <span>{"]"}</span>
-
-
     </>
   );
 };
 
 
-  function AfficheGrillePlacage(){
-    return (
-      <>
-       <GrilleContextProvider>
-        <InitGrille/>
-        <AffichePlacage></AffichePlacage>
-       </GrilleContextProvider>
-      </>
-    
-    )
-  }
 
-
-
-  export default AfficheGrillePlacage;
+export default AfficheGrillePlace;

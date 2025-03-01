@@ -1,6 +1,9 @@
 import { createContext } from 'react';
 
 // Créer le contexte
-const Context = createContext(5);
+ const JeuContext = createContext(null);
+export default JeuContext
 
-export default Context;
+
+
+
