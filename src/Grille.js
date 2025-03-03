@@ -80,7 +80,6 @@ class Grille {
     if(this.ajouterBateau(copie_bateau)){
     this.retirerTabBateau(indice_tab_bateau);
     }
-
   }
 
   /**

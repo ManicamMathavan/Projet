@@ -21,13 +21,15 @@ function Affiche2Joueur({ jeu }) {
   );
 }
 
+
+//affiche la grille en fonction de l'attribut ecran de jeu
 const AfficheGrilleActuel =()=> {
     const { jeu} = useContext(JeuContext);
 
     if (jeu.ecran == Ecran.AJOUTER) {
       return <AfficheGrillePlace />;
     }
-    
+
       if(jeu.ecran==Ecran.GAGNER) return <AfficheGagnant/> ;
 
 

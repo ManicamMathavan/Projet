@@ -6,7 +6,7 @@ function AfficheGagnant(){
     const {jeu} = useContext(JeuContext);
     return (
         <div>
-            {jeu.tour_joueur==1 ? "Le gagnant est le joueur 2" : "Le gagnant est le joueur 1"}
+            {jeu.tour_joueur==1 ? "Le gagnant est le joueur 1" : "Le gagnant est le joueur 2"}
         </div>
     )
 }

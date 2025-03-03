@@ -21,7 +21,7 @@ jeu.genererBateau(bateau, 1, 1);
 jeu.joueur1.grille.ajouterBateau(bateau);
 jeu.joueur1.grilleAdverse.ajouterBateau(bateau);
 jeu.joueur1.tirer(new Coord(0,0))
-console.log(jeu.ecran)
+
 function App() {
   
   return (

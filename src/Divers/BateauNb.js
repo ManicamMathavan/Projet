@@ -13,6 +13,8 @@ class BateauNb{
         this.nb = nb;
         this.bateau = bateau
     }
+
+    
 }
 
 export default BateauNb;

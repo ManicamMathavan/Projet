@@ -17,7 +17,7 @@ function AfficheGrillePlace() {
   );
 }
 
-//creation du context
+//creation du context local a ce fichier
 const LocalContext = createContext();
 /*eslint-disable react/prop-types */
 function LocalContextProvider({ children }) {
@@ -73,7 +73,7 @@ function InitGrille() {
   const [boutonSelectionner, setBoutonSelectionner] = useState(null);
   const mode = useRef(Mode.AJOUTER);
   const bateau_selectionne = useRef(null);
-  console.log(jeu.ecran)
+
 
   //fait apparaitre les boutons quand tout les bateau sont placer
   //à chaque render ou les retirer
@@ -83,7 +83,7 @@ function InitGrille() {
     } else {
       setPeutCommencer(false);
     }
-    // console.log(jeuRefresh)
+
   },[jeuRefresh,joueur.grille.bateaux_a_placer.length])
 
   //affiche une couleur selon le contenu de la grille
@@ -100,7 +100,8 @@ function InitGrille() {
     if (indiceBateauSelectionne != null && mode.current == Mode.AJOUTER) {
       joueur.ajouterBateauGrille(indiceBateauSelectionne, coord);
 
-      //verifie si tout les bateau sont placer et fait apparaitre les boutons
+      /*verifie si tout les bateau sont placer et fait apparaitre le bouton
+      de commencer la partie*/
       if (
         joueur.grille.bateaux_a_placer.length == 0 &&
         peutCommencer == false
@@ -110,6 +111,7 @@ function InitGrille() {
       setIndiceBateauSelectionne(null);
     }
 
+    //deplace le bateau selectionne ou en selectionne un s'il est présent
     if (mode.current == Mode.DEPLACER) {
       if (bateau_selectionne.current == null) {
         bateau_selectionne.current = joueur.grille.getCellule(coord).bateau;
@@ -131,7 +133,7 @@ function InitGrille() {
     setBoutonSelectionner(button_index);
   }
 
-  function AfficheEcranSuivant(){
+  function afficheEcranSuivant(){
     if (jeu.tour_joueur == 1) {
       jeu.change_tour_joueur();
     } else {
@@ -163,7 +165,7 @@ function InitGrille() {
       {/* button apparait si la liste des bateaux est vide */}
       {peutCommencer && (
         <button
-          onClick={AfficheEcranSuivant}
+          onClick={afficheEcranSuivant}
         >
           Commencer
         </button>

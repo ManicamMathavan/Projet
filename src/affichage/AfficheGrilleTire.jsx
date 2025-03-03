@@ -66,20 +66,23 @@ function AfficheGrilleTire (){
         if(peutTirer.current){
         peutTirer.current=false
         joueur.tirer(coord)
+        afficheEcranSuivant()
+        forceLocalRefresh()
+      }
+    }
+
+      function afficheEcranSuivant(){
         if(joueur.aGagne()){
           jeu.ecran=Ecran.GAGNER
           forceRefreshJeu()
           return;
-        }
-        jeu.change_tour_joueur()
-        forceLocalRefresh()
-
+        } else{
         //affiche l'ecran suivant
         setTimeout(() => {
+          jeu.change_tour_joueur()
           forceRefreshJeu()
         },1000)
       }
-
       }
 
 
@@ -95,7 +98,7 @@ function AfficheGrilleTire (){
       function tirerViaGrille({coord}){
         tirerCellule(coord)
       }
-      function AfficheEcranDeplace(){
+      function afficheEcranDeplace(){
         jeu.ecran=Ecran.DEPLACER
         forceRefreshJeu()
       }
@@ -111,7 +114,7 @@ function AfficheGrilleTire (){
         <label htmlFor="abscisse">ordonne : </label>
         <input type="number" value={ordonnee} onChange={(e) => changeOrdonne(e)} />
         <button onClick={tirerViaButton}>Tirer</button>
-        <button onClick={AfficheEcranDeplace}>Ecran deplacement</button>
+        <button onClick={afficheEcranDeplace}>Ecran deplacement</button>
       </>
       )
 }
