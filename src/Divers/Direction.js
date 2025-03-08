@@ -1,6 +1,6 @@
 const Direction=Object.freeze({
-    VERTICAL:Symbol("vertical"),
-    HORIZONTAL:Symbol("horizontal")
+    VERTICAL:"vertical",
+    HORIZONTAL:"horizontal"
     });
 
 export default Direction;

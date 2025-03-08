@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import JeuContext from "../Context";
+import JeuContext from "../../Context";
 
 
 function AfficheGagnant(){

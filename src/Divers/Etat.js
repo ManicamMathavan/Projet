@@ -1,7 +1,7 @@
 const Etat= Object.freeze({
-    VIDE: Symbol("vide"),
-    RATE:Symbol("rate"),
-    TOUCHER:Symbol("toucher"),
-    COULER:Symbol("couler")
+    VIDE: "vide",
+    RATE:"rate",
+    TOUCHER:"toucher",
+    COULER:"couler"
     });
 export default Etat;

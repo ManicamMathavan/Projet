@@ -23,8 +23,6 @@ class Bateau {
     this.taille = taille;
     this.#coord_debut = new Coord(case_x, case_y);
     this.change_coord(this.#coord_debut);
-
-
     //etat des cases (detruit ou non)
     this.cases_est_touche = Array.from(
           { length: taille },
@@ -137,6 +135,18 @@ class Bateau {
   estDetruit(){
     //verifier si toute les cases sont detruite
     return !this.cases_est_touche.includes(false);
+  }
+
+  toJSON() {
+    return {
+      nom: this.nom,
+      taille: this.taille,
+      direction: this.#direction,
+      coord_debut: this.#coord_debut,
+      coord_interdite_debut: this.#coord_interdite_debut,
+      coord_interdite_fin: this.#coord_interdite_fin,
+      coord_fin: this.#coord_fin
+    }
   }
 
 

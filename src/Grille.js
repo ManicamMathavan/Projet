@@ -10,7 +10,7 @@ class Grille {
   #hauteur;
   #grille;
   #bateaux_a_placer;
-  #nb_bateau;
+  #bateaux_restants;
 
   /**
    *
@@ -23,7 +23,7 @@ class Grille {
     this.#largeur = largeur;
     this.#hauteur = hauteur;
     this.#bateaux_a_placer = [];
-    this.#nb_bateau = 0;
+    this.#bateaux_restants = [];
     this.#grille = this.remplirGrille(); //remplir la grille de cases vides
   }
 
@@ -34,7 +34,6 @@ class Grille {
    */
 
   ajouterTabBateau(bateauNb) {
-    this.#nb_bateau += bateauNb.nb;
     this.#bateaux_a_placer.push(bateauNb);
   }
 
@@ -46,8 +45,7 @@ class Grille {
    */
    getCellule(x, y) {
     
-    if(x instanceof Coord){
-    
+    if(x.x!=undefined && x.y!=undefined){
       return this.#grille[x.y][x.x];
     }
      return this.#grille[y][x];
@@ -78,6 +76,7 @@ class Grille {
     );
 
     if(this.ajouterBateau(copie_bateau)){
+    this.bateaux_restants.push(copie_bateau);
     this.retirerTabBateau(indice_tab_bateau);
     }
   }
@@ -174,11 +173,11 @@ class Grille {
   }
 
   estVide(){
-    return this.#nb_bateau <= 0
+    return this.#bateaux_restants.length == 0
   }
 
-  get nb_bateau() {
-    return this.#nb_bateau;
+  get bateaux_restants() {
+    return this.#bateaux_restants;
   }
   get bateaux_a_placer() {
     return this.#bateaux_a_placer;
@@ -262,7 +261,7 @@ class Grille {
         for (let pos_x = bateau.coord_debut.x; pos_x <= bateau.coord_fin.x; pos_x++) {
           const cellule = this.getCellule(pos_x, pos_y);
           const contenu_zone_interdite = bateau_a_ignore.estContenuInterdit(
-            new Coord(pos_x, bateau.coord_debut.y)
+            new Coord(pos_x, pos_y)
           );
           if (
             (cellule.interdit > 0 && !contenu_zone_interdite) ||
@@ -281,7 +280,8 @@ class Grille {
    * @param {Bateau} bateau - Le bateau a détruire
    */
   #detruireBateau(bateau) {
-    this.#nb_bateau--;
+    const indice = this.#bateaux_restants.findIndex((element) =>element==bateau)
+    this.#bateaux_restants.splice(indice, 1)
     //mettre a jour la grille
     this.#appliquerFonctionSurBateau(
       bateau,
@@ -340,7 +340,9 @@ class Grille {
   ajouterBateau(bateau) {
     //verifier si les conditions pour ajouter un bateau sont respectées
     if (!this.#conditionBateau(bateau)) {
+      console.log("pas ok")
       return false;
+
     }
     this.#appliquerFonctionSurBateau(
       bateau,
@@ -352,6 +354,7 @@ class Grille {
         cellule_bateau.interdit++;
       }
     );
+    console.log("ok")
     return true;
   }
 
@@ -376,6 +379,7 @@ class Grille {
       }
     }
   }
+
 }
 
 export default Grille;

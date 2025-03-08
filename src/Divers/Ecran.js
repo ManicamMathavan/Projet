@@ -1,7 +1,7 @@
 const Ecran=Object.freeze({
-    AJOUTER:Symbol("ajouter"),
-    DEPLACER:Symbol("deplacer"),
-    TIRER:Symbol("tirer"),
-    GAGNER:Symbol("gagner")
+    AJOUTER:"ajouter",
+    DEPLACER:"deplacer",
+    TIRER:"tirer",
+    GAGNER:"gagner"
 })
 export default Ecran;

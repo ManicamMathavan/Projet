@@ -1,9 +1,9 @@
 import { useContext, useEffect, useRef, useState } from "react";
-import JeuContext from "../Context";
-import Coord from "../Divers/Coord";
-import Ecran from "../Divers/Ecran";
-import Etat from "../Divers/Etat";
-import AfficheGrille from "./AfficheGrille";
+import JeuContext from "../../Context";
+import Coord from "../../Divers/Coord";
+import Ecran from "../../Divers/Ecran";
+import Etat from "../../Divers/Etat";
+import AfficheGrille from "../AfficheGrille";
 
 
 

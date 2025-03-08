@@ -1,5 +1,6 @@
 import { useState } from "react";
 import JeuContext from "./Context";
+import ModeJeu from "./Divers/ModeJeu";
 
 /*eslint-disable react/prop-types */
 
@@ -14,7 +15,8 @@ import JeuContext from "./Context";
 function JeuContextProvider({ children, jeu }) {
     const [jeuRefresh,setJeuRefresh] = useState(0)
     const aGagner=false
-    const joueur=jeu.tour_joueur==1 ? jeu.joueur1 : jeu.joueur2
+    const joueur=init_joueur(jeu)
+    console.log(joueur)
     const forceRefreshJeu = () => {
       setJeuRefresh( jeuRefresh == 0 ? 1 : 0);
   };
@@ -26,7 +28,19 @@ function JeuContextProvider({ children, jeu }) {
     );
   }
 
+  function init_joueur(jeu){
+    if(jeu.mode_jeu==ModeJeu.DEUX_JOUEURS){
+      return jeu.tour_joueur==1 ? jeu.joueur1 : jeu.joueur2
+    }
+    if(jeu.mode_jeu==ModeJeu.EN_LIGNE){
+       return jeu.estServer ? jeu.joueur1 : jeu.joueur2
+    }
+
+  }
+
+
   export default JeuContextProvider
+
   
 
   // export function JoueurContextProvider({ children}) {

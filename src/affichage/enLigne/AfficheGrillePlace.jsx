@@ -1,10 +1,11 @@
 import { createContext, useContext, useEffect, useRef, useState } from "react";
-import JeuContext from "../Context";
-import Direction from "../Divers/Direction";
-import Ecran from "../Divers/Ecran";
-import Etat from "../Divers/Etat";
-import AfficheGrille from "./AfficheGrille";
-
+import { client_socket } from "../../../connexion/client";
+import Bateau from "../../Bateau";
+import JeuContext from "../../Context";
+import Direction from "../../Divers/Direction";
+import Ecran from "../../Divers/Ecran";
+import Etat from "../../Divers/Etat";
+import AfficheGrille from "../AfficheGrille";
 
 function AfficheGrillePlace() {
   return (
@@ -59,7 +60,7 @@ function InitGrille() {
     { text: "Deplacer bateau", mode: Mode.DEPLACER },
   ];
 
-  const { jeu, forceRefreshJeu,jeuRefresh, joueur } = useContext(JeuContext);
+  const { jeu, forceRefreshJeu, jeuRefresh, joueur } = useContext(JeuContext);
   const {
     indiceBateauSelectionne,
     setIndiceBateauSelectionne,
@@ -67,13 +68,12 @@ function InitGrille() {
     direction,
   } = useContext(LocalContext);
 
-
   //fait apparaitre les boutons quand tout les bateau sont placer
   const [peutCommencer, setPeutCommencer] = useState(false);
   const [boutonSelectionner, setBoutonSelectionner] = useState(null);
+  const aEnvoyerMsg = useRef(false);
   const mode = useRef(Mode.AJOUTER);
   const bateau_selectionne = useRef(null);
-
 
   //fait apparaitre les boutons quand tout les bateau sont placer
   //à chaque render ou les retirer
@@ -83,23 +83,61 @@ function InitGrille() {
     } else {
       setPeutCommencer(false);
     }
+    /*le messsage pour commencer la partie est faux
+    a chaque refresh du jeu mais pas au refreshlocal*/
+    aEnvoyerMsg.current = false;
 
-  },[jeuRefresh,joueur.grille.bateaux_a_placer.length])
+    client_socket.onmessage = ({ data: message }) => {
+      const contenu_message = JSON.parse(message);
+
+      if (contenu_message.type == "commencer_tirer") {
+        console.log("donner base", joueur.grille.bateaux_restants);
+        client_socket.send(
+          JSON.stringify({ type: "grille", bateaux: joueur.grille.bateaux_restants })
+        );
+        return;
+      }
+      if (contenu_message.type == "grille") {
+        const bateaux_adverse_actuel = joueur.grilleAdverse.bateaux_restants;
+        const bateaux_adverse_recu=contenu_message.bateaux;
+    
+          bateaux_adverse_recu.forEach((bateau) => {
+            const instance=new Bateau(bateau.nom,bateau.taille,bateau.direction,bateau.coord_debut.x,bateau.coord_debut.y)
+            bateaux_adverse_actuel.push(instance);
+            joueur.grilleAdverse.ajouterBateau(instance);
+          })
+
+
+          console.log("grille_adverse",joueur.grilleAdverse.grille);
+          console.log("message", message);
+          console.log("adverse", bateaux_adverse_actuel);
+          jeu.ecran = Ecran.TIRER;
+          forceRefreshJeu();
+          return;
+        }
+      }
+  
+  }, [
+    jeuRefresh,
+    joueur.grille.bateaux_a_placer.length,
+    jeu,
+    forceRefreshJeu,
+    joueur
+  ]);
 
   //affiche une couleur selon le contenu de la grille
   function change_class(cellule) {
-    if (cellule.etat == Etat.TOUCHER)  return "toucher";
-    if (cellule.etat == Etat.RATE)  return "tirer";
+    if (cellule.etat == Etat.TOUCHER) return "toucher";
+    if (cellule.etat == Etat.RATE) return "tirer";
     if (cellule.etat == Etat.COULER) return "couler";
     if (cellule.bateau) return "bateau";
-    if (cellule.interdit >= 1)  return "interdit";
+    if (cellule.interdit >= 1) return "interdit";
     return "vide";
   }
   //gere les clique sur la grille
   function interagirGrille({ coord }) {
     if (indiceBateauSelectionne != null && mode.current == Mode.AJOUTER) {
       joueur.ajouterBateauGrille(indiceBateauSelectionne, coord);
-
       /*verifie si tout les bateau sont placer et fait apparaitre le bouton
       de commencer la partie*/
       if (
@@ -133,19 +171,16 @@ function InitGrille() {
     setBoutonSelectionner(button_index);
   }
 
-  function afficheEcranSuivant(){
-    if (jeu.tour_joueur == 1) {
-      jeu.change_tour_joueur();
-    } else {
-      jeu.change_tour_joueur();
-      jeu.ecran = Ecran.TIRER;
+  function joueurPret() {
+    if (!aEnvoyerMsg.current) {
+      client_socket.send(JSON.stringify({ type: "pret" }));
+      aEnvoyerMsg.current = true;
     }
-    forceRefreshJeu();
   }
 
   return (
     <>
-      <p> {jeu.tour_joueur == 1 ? "joueur1" : "joueur2"}</p>
+      <p> {joueur == jeu.joueur1 ? "joueur1" : "joueur2"}</p>
       <AfficheGrille
         onClickCell={interagirGrille}
         change_class={change_class}
@@ -163,13 +198,7 @@ function InitGrille() {
       ))}
 
       {/* button apparait si la liste des bateaux est vide */}
-      {peutCommencer && (
-        <button
-          onClick={afficheEcranSuivant}
-        >
-          Commencer
-        </button>
-      )}
+      {peutCommencer && <button onClick={joueurPret}>Commencer</button>}
     </>
   );
 }
@@ -242,7 +271,5 @@ const AffichePlacage = () => {
     </>
   );
 };
-
-
 
 export default AfficheGrillePlace;

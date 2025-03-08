@@ -1,20 +1,20 @@
 import Bateau from "./Bateau.js";
 import BateauNb from "./Divers/BateauNb.js";
-import Ecran from "./Divers/Ecran.js";
 import Grille from "./Grille.js";
 import Joueur from "./Joueur.js";
  class Jeu{
-    #grille1
-    #grille2
+
     #tour_joueur
 
     constructor(grille){
-        this.#grille1=new Grille(grille.largeur,grille.hauteur)
-        this.#grille2=new Grille(grille.largeur,grille.hauteur)
-        this.joueur1=new Joueur(this.#grille1,this.#grille2)
-        this.joueur2=new Joueur(this.#grille2,this.#grille1)
+       const grille1=new Grille(grille.largeur,grille.hauteur)
+       const grille2=new Grille(grille.largeur,grille.hauteur)
+        this.joueur1=new Joueur(grille1,grille2)
+        this.joueur2=new Joueur(grille2,grille1)
         this.#tour_joueur=1
-        this.ecran=Ecran.AJOUTER
+        this.ecran
+        this.mode_jeu
+        this.estServer=false
     }
 
     get tour_joueur(){
@@ -37,12 +37,24 @@ import Joueur from "./Joueur.js";
     if(nb_bateau>0){
     const copie_bateau1=new Bateau(bateau.nom,bateau.taille,bateau.direction,bateau.case_x,bateau.case_y)
     const copie_bateau2=new Bateau(bateau.nom,bateau.taille,bateau.direction,bateau.case_x,bateau.case_y)
-    this.#grille1.ajouterTabBateau(new BateauNb(nb_bateau,copie_bateau1))
-    this.#grille2.ajouterTabBateau(new BateauNb(nb_bateau,copie_bateau2))
+    this.joueur1.grille.ajouterTabBateau(new BateauNb(nb_bateau,copie_bateau1))
+    this.joueur2.grille.ajouterTabBateau(new BateauNb(nb_bateau,copie_bateau2))
     }
 }
+getJoueurOppose(joueur){
+    return joueur==this.joueur1?this.joueur2:this.joueur1
+}
+
+getJoueurActuel(){
+    return this.#tour_joueur==1 ? this.joueur1 : this.joueur2
+}
+
 }
  
+// actionAvecJSON(message){
+//     const contenu_message=JSON.parse(message.data)
+
+// }
 
 
 

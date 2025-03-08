@@ -1,10 +1,10 @@
 
 import { useContext, useEffect, useRef, useState } from 'react';
-import JeuContext from '../Context';
-import Ecran from '../Divers/Ecran';
-import Etat from '../Divers/Etat';
-import Sens from '../Divers/Sens';
-import AfficheGrille from './AfficheGrille';
+import JeuContext from '../../Context';
+import Ecran from '../../Divers/Ecran';
+import Etat from '../../Divers/Etat';
+import Sens from '../../Divers/Sens';
+import AfficheGrille from '../AfficheGrille';
 function AfficheGrilleDeplace(){
 
     //initialisation des variables
