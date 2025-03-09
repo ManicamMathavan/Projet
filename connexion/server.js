@@ -52,7 +52,7 @@ server_socket.on('connection', (client_socket,req) => {
      }
     }
     if(contenu_message.type=="tirer" || contenu_message.type=="deplacer" || contenu_message.type=="grille"
-        || contenu_message.type=="gagner"
+        || contenu_message.type=="gagner" || contenu_message.type=="bateaux_a_placer"
     ){
         envoyerAuxClients(contenu_message,client_socket)
     }

@@ -27,7 +27,6 @@ class Grille {
     this.#grille = this.remplirGrille(); //remplir la grille de cases vides
   }
 
-  
   /**
    * Ajoute un bateau et son nombredans la liste des bateaux à placer.
    * @param {BateauNb} bateauNb - Le bateau et son nombre à ajouter à la liste.
@@ -43,13 +42,12 @@ class Grille {
    * @param {number} [y] - coordonne y de la case, si x est un nombre.
    * @returns {Cellule} la case de la grille.
    */
-   getCellule(x, y) {
-    
-    if(x.x!=undefined && x.y!=undefined){
+  getCellule(x, y) {
+    if (x.x != undefined && x.y != undefined) {
       return this.#grille[x.y][x.x];
     }
-     return this.#grille[y][x];
-   }
+    return this.#grille[y][x];
+  }
 
   /**
    * Retire 1 au nb de bateau du tableau de bateaux à placer.
@@ -75,9 +73,9 @@ class Grille {
       coord.y
     );
 
-    if(this.ajouterBateau(copie_bateau)){
-    this.bateaux_restants.push(copie_bateau);
-    this.retirerTabBateau(indice_tab_bateau);
+    if (this.ajouterBateau(copie_bateau)) {
+      this.bateaux_restants.push(copie_bateau);
+      this.retirerTabBateau(indice_tab_bateau);
     }
   }
 
@@ -88,7 +86,6 @@ class Grille {
    * @returns {boolean} - le bateau a t'il ete deplacer?
    */
   deplacerBateau(bateau_initial, coord_to_add) {
-
     const new_coord_debut = Coord.addCoord(
       bateau_initial.coord_debut,
       coord_to_add
@@ -102,7 +99,7 @@ class Grille {
     );
 
     //verifier les conditions sur le nouveau bateau
-    if (this.#conditionBateau(bateau_new_position, bateau_initial)) {
+    if (this.conditionBateau(bateau_new_position, bateau_initial)) {
       //retirer le bateau a la case de depart
       this.#retirerBateau(bateau_initial);
 
@@ -114,9 +111,11 @@ class Grille {
     return false;
   }
 
-
-  changerCoordBateau(bateau_initial, new_coord,direction=bateau_initial.direction) {
-
+  changerCoordBateau(
+    bateau_initial,
+    new_coord,
+    direction = bateau_initial.direction
+  ) {
     const bateau_new_position = new Bateau(
       bateau_initial.nom,
       bateau_initial.taille,
@@ -126,7 +125,7 @@ class Grille {
     );
 
     //verifier les conditions sur le nouveau bateau
-    if (this.#conditionBateau(bateau_new_position, bateau_initial)) {
+    if (this.conditionBateau(bateau_new_position, bateau_initial)) {
       //retirer le bateau a la case de depart
       this.#retirerBateau(bateau_initial);
 
@@ -137,7 +136,6 @@ class Grille {
       return true;
     }
     return false;
-    
   }
 
   /**
@@ -172,8 +170,8 @@ class Grille {
     }
   }
 
-  estVide(){
-    return this.#bateaux_restants.length == 0
+  estVide() {
+    return this.#bateaux_restants.length == 0;
   }
 
   get bateaux_restants() {
@@ -183,13 +181,16 @@ class Grille {
     return this.#bateaux_a_placer;
   }
 
-
   get grille() {
     return this.#grille;
   }
 
   get largeur() {
     return this.#largeur;
+  }
+
+  bateaux_a_placerFromJSON(json) {
+    this.bateaux_a_placer=JSON.parse(json);
   }
 
   /**
@@ -205,6 +206,9 @@ class Grille {
 
   get hauteur() {
     return this.#hauteur;
+  }
+  set bateaux_a_placer(bateaux_a_placer) {
+    this.#bateaux_a_placer = bateaux_a_placer;
   }
 
   /**
@@ -231,48 +235,71 @@ class Grille {
     );
   }
 
-
-
-
-  #conditionBateau(bateau, bateau_a_ignore = null) {
+  /**
+   * Vérifie si le bateau peut être placé sur la grille.
+   * La méthode vérifie si le bateau ne dépasse pas de la grille,
+   * et si les cases de la grille ne sont pas interdites.
+   * Si un bateau est passé en paramètre, il est ignoré
+   * dans les vérifications.
+   * @param {Bateau} bateau bateau à vérifier
+   * @param {Bateau} [bateau_a_ignore] bateau à ignorer dans les vérifications
+   * @returns {boolean} true si le bateau peut être placé
+   */
+  conditionBateau(bateau, bateau_a_ignore = null) {
     //verifier si le bateau ne depasse pas de la grille
     if (
       this.#estContenu(bateau.coord_debut) == false ||
       this.#estContenu(bateau.coord_fin) == false
     ) {
+      console.log(bateau)
       return false;
     }
 
     // si aucun bateau a ignorer
     if (bateau_a_ignore == null) {
-        for(let pos_y = bateau.coord_debut.y; pos_y <= bateau.coord_fin.y; pos_y++) {
-          for (let pos_x = bateau.coord_debut.x; pos_x <= bateau.coord_fin.x; pos_x++) {
-            if (this.getCellule(pos_x, pos_y).interdit > 0) {
-              return false;
-            }
-          }
-        }
-        return true;
-      } 
-
-
-      // ne pas compter les cases du bateau a ignorer dans les conditions de placements
-      for(let pos_y = bateau.coord_debut.y; pos_y <= bateau.coord_fin.y; pos_y++) {
-        for (let pos_x = bateau.coord_debut.x; pos_x <= bateau.coord_fin.x; pos_x++) {
-          const cellule = this.getCellule(pos_x, pos_y);
-          const contenu_zone_interdite = bateau_a_ignore.estContenuInterdit(
-            new Coord(pos_x, pos_y)
-          );
-          if (
-            (cellule.interdit > 0 && !contenu_zone_interdite) ||
-            (cellule.interdit > 1 && contenu_zone_interdite)
-          ) {
+      for (
+        let pos_y = bateau.coord_debut.y;
+        pos_y <= bateau.coord_fin.y;
+        pos_y++
+      ) {
+        for (
+          let pos_x = bateau.coord_debut.x;
+          pos_x <= bateau.coord_fin.x;
+          pos_x++
+        ) {
+          if (this.getCellule(pos_x, pos_y).interdit > 0) {
             return false;
           }
         }
+      }
+      return true;
+    }
+
+    // ne pas compter les cases du bateau a ignorer dans les conditions de placements
+    for (
+      let pos_y = bateau.coord_debut.y;
+      pos_y <= bateau.coord_fin.y;
+      pos_y++
+    ) {
+      for (
+        let pos_x = bateau.coord_debut.x;
+        pos_x <= bateau.coord_fin.x;
+        pos_x++
+      ) {
+        const cellule = this.getCellule(pos_x, pos_y);
+        const contenu_zone_interdite = bateau_a_ignore.estContenuInterdit(
+          new Coord(pos_x, pos_y)
+        );
+        if (
+          (cellule.interdit > 0 && !contenu_zone_interdite) ||
+          (cellule.interdit > 1 && contenu_zone_interdite)
+        ) {
+          return false;
+        }
+      }
+    }
+    return true;
   }
-  return true;
-}
 
   /**
    * Détuit un bateau de la grille en modifiant le tableau de bateaux.
@@ -280,8 +307,10 @@ class Grille {
    * @param {Bateau} bateau - Le bateau a détruire
    */
   #detruireBateau(bateau) {
-    const indice = this.#bateaux_restants.findIndex((element) =>element==bateau)
-    this.#bateaux_restants.splice(indice, 1)
+    const indice = this.#bateaux_restants.findIndex(
+      (element) => element == bateau
+    );
+    this.#bateaux_restants.splice(indice, 1);
     //mettre a jour la grille
     this.#appliquerFonctionSurBateau(
       bateau,
@@ -339,10 +368,8 @@ class Grille {
    */
   ajouterBateau(bateau) {
     //verifier si les conditions pour ajouter un bateau sont respectées
-    if (!this.#conditionBateau(bateau)) {
-      console.log("pas ok")
+    if (!this.conditionBateau(bateau)) {
       return false;
-
     }
     this.#appliquerFonctionSurBateau(
       bateau,
@@ -354,13 +381,12 @@ class Grille {
         cellule_bateau.interdit++;
       }
     );
-    console.log("ok")
     return true;
   }
 
   /**
    * Modifie l'état de la case d'un bateau via ses coordonnées sur la grille.
-   * Assigne la case associé au parametre valeur.
+   * Assigne la case associé au parametre aeur.
    * @param {Coord} coord - Les coordonnées de la case à modifier sur la grille.
    * @param {boolean} valeur - La valeur à assigner pour indiquer si la case est touchée (true) ou non (false).
    */

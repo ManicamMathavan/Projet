@@ -1,6 +1,7 @@
 const ModeJeu=Object.freeze({
-    EN_LIGNE:Symbol("en_ligne"),
-    DEUX_JOUEURS:Symbol("deux_joueurs"),
-    IA:Symbol("ia")
+    EN_LIGNE:"en_ligne",
+    DEUX_JOUEURS:"deux_joueurs",
+    IA:"ia",
+    AUCUN:"aucun"
 })
 export default ModeJeu

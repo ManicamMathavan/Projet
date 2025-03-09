@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import JeuContext from "./Context";
+import Ecran from "./Divers/Ecran";
 import ModeJeu from "./Divers/ModeJeu";
 
 /*eslint-disable react/prop-types */
@@ -16,13 +17,18 @@ function JeuContextProvider({ children, jeu }) {
     const [jeuRefresh,setJeuRefresh] = useState(0)
     const aGagner=false
     const joueur=init_joueur(jeu)
-    console.log(joueur)
+    const [ecran,setEcran]=useState(Ecran.MENU)
+    console.log("joueur",joueur)
     const forceRefreshJeu = () => {
       setJeuRefresh( jeuRefresh == 0 ? 1 : 0);
   };
+
+  useEffect(() => {
+    
+  })
   
     return (
-      <JeuContext.Provider value={{jeu,forceRefreshJeu,jeuRefresh,joueur,aGagner}}>
+      <JeuContext.Provider value={{jeu,forceRefreshJeu,jeuRefresh,joueur,aGagner,modeJeu: ecran,setModeJeu: setEcran}}>
         {children}
       </JeuContext.Provider>
     );
@@ -35,6 +41,9 @@ function JeuContextProvider({ children, jeu }) {
     if(jeu.mode_jeu==ModeJeu.EN_LIGNE){
        return jeu.estServer ? jeu.joueur1 : jeu.joueur2
     }
+    if(jeu.mode_jeu==ModeJeu.IA){
+      return jeu.joueur1
+    }
 
   }
 
@@ -43,18 +52,3 @@ function JeuContextProvider({ children, jeu }) {
 
   
 
-  // export function JoueurContextProvider({ children}) {
-  //   const {jeu} = useContext(JeuContext)
-  //   const joueur=jeu.tour_joueur==1 ? jeu.joueur1 : jeu.joueur2
-  //   const [refresh,setRefresh] = useState(0)
-  //   const forceRefreshJoueur = () => {
-  //     setRefresh( refresh == 0 ? 1 : 0);
-  //   }
-  
-  //     return (
-  //       <JoueurContext.Provider value={{joueur,forceRefreshJoueur}}>
-  //         {children}
-  //       </JoueurContext.Provider>
-  //     )
-  // };
-  

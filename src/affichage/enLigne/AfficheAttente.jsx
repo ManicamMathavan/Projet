@@ -6,14 +6,26 @@ import Ecran from "../../Divers/Ecran";
 function AfficheAttente() {
     startClient()
     let client=client_socket
-    const {jeu,forceRefreshJeu}=useContext(JeuContext)
-    client.onmessage = ({data: contenu_message}) => {
-        const type_message=JSON.parse(contenu_message).type
-        if(type_message=="commencer"){
+    const {jeu,forceRefreshJeu,joueur}=useContext(JeuContext)
+    client.onmessage = ({data: message}) => {
+        const contenu_message=JSON.parse(message)
+
+        if(contenu_message.type=="commencer" && jeu.estServer){
+
+            client_socket.send(JSON.stringify({type:"bateaux_a_placer",bateaux:joueur.grille.bateaux_a_placer}))
+            console.log("message",JSON.stringify({type:"bateaux_a_placer",bateaux:joueur.grille.bateaux_a_placer}));
             jeu.ecran=Ecran.AJOUTER
             forceRefreshJeu()
         }
-         else if(type_message=="estServer"){
+
+        if(contenu_message.type=="bateaux_a_placer"){
+            console.log("message recu",contenu_message.bateaux);
+            joueur.grille.bateaux_a_placer=(contenu_message.bateaux)
+            jeu.ecran=Ecran.AJOUTER
+            forceRefreshJeu()
+        }
+
+         else if(contenu_message.type=="estServer"){
             jeu.estServer=true
         }
     }
