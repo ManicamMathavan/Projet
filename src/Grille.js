@@ -28,7 +28,7 @@ class Grille {
   }
 
   /**
-   * Ajoute un bateau et son nombredans la liste des bateaux à placer.
+   * Ajoute un bateau et son nombre dans la liste des bateaux à placer.
    * @param {BateauNb} bateauNb - Le bateau et son nombre à ajouter à la liste.
    */
 
@@ -50,9 +50,9 @@ class Grille {
   }
 
   /**
-   * Retire 1 au nb de bateau du tableau de bateaux à placer.
+   * Retire 1 au nb de bateau du tableau bateaux_a_placer à l'indice selectionné.
    * Si le nombre de bateau est à 0, retire le bateau du tableau.
-   ** @param {number} i - index du bateau à retirer
+   ** @param {number} i - index du bateau à retirer dans bateau_a_placer
    */
   retirerTabBateau(i) {
     if (i < this.#bateaux_a_placer.length && i >= 0) {
@@ -62,6 +62,15 @@ class Grille {
       }
     }
   }
+
+/**
+ * Ajoute un bateau à la grille à partir de l'indice donné de bateaux_a_placer.
+ * Crée une copie du bateau avec les nouvelles coordonnées et l'ajoute à la grille si possible.
+ * Si l'ajout est réussi, le bateau est déplacé dans la liste des bateaux restants
+ * et retiré de la liste des bateaux à placer.
+ * @param {number} indice_tab_bateau - Indice du bateau dans le tableau des bateaux à placer.
+ * @param {Coord} coord - Coordonnée de la case de début du bateau.
+ */
 
   ajouterBateauGrille(indice_tab_bateau, coord) {
     const bateau_selectionne = this.#bateaux_a_placer[indice_tab_bateau].bateau;
@@ -111,6 +120,14 @@ class Grille {
     return false;
   }
 
+  /**
+   * Change la coordonne de debut d'un bateau dans la grille.
+   * et l'ajoute a la grille si possible
+   * @param {Bateau} bateau_initial - Bateau a modifier.
+   * @param {Coord} new_coord - Nouvelle coordonne de la case de debut du bateau
+   * @param {Sens} [direction=bateau_initial.direction] - Direction du bateau
+   * @returns {boolean} - Le bateau a t'il ete deplacer?
+   */
   changerCoordBateau(
     bateau_initial,
     new_coord,
@@ -159,17 +176,24 @@ class Grille {
 
       if (bateau_cellule == null) {
         cellule.etat = Etat.RATE;
+        return false
       } else {
         this.#modifier_case_bateau_via_case_grille(coord, true);
         if (bateau_cellule.estDetruit()) {
           this.#detruireBateau(bateau_cellule);
+          return true
         } else {
           cellule.etat = Etat.TOUCHER;
+          return false
         }
       }
     }
   }
 
+  /**
+   * Vérifie si la grille est vide.
+   * @returns {boolean} - La grille est-elle vide?
+   */
   estVide() {
     return this.#bateaux_restants.length == 0;
   }
@@ -189,6 +213,11 @@ class Grille {
     return this.#largeur;
   }
 
+  /**
+   * Met à jour le tableau des bateaux à placer à partir d'une chaîne JSON.
+   * @param {string} json - Chaîne JSON représentant le tableau des bateaux à placer.
+   */
+
   bateaux_a_placerFromJSON(json) {
     this.bateaux_a_placer=JSON.parse(json);
   }
@@ -198,11 +227,13 @@ class Grille {
    * @param {number} largeur largeur de la grille
    * @param {number} hauteur hauteur de la grille
    */
-  changerDimension(largeur, hauteur) {
-    this.#largeur = largeur;
-    this.#hauteur = hauteur;
-    this.#grille = this.remplirGrille();
-  }
+
+
+  // changerDimension(largeur, hauteur) {
+  //   this.#largeur = largeur;
+  //   this.#hauteur = hauteur;
+  //   this.#grille = this.remplirGrille();
+  // }
 
   get hauteur() {
     return this.#hauteur;
@@ -302,7 +333,7 @@ class Grille {
   }
 
   /**
-   * Détuit un bateau de la grille en modifiant le tableau de bateaux.
+   * Détuit un bateau de la grille en le retirant du tableau bateaux_restants.
    * Met aussi à jour la grille en mettant les etats COULER dans les cases du bateau.
    * @param {Bateau} bateau - Le bateau a détruire
    */
@@ -327,7 +358,6 @@ class Grille {
   /**
    * Applique une fonction sur les cases de la grille qui sont des zones interdites du bateau
    * et sur les cases qui sont le bateau lui meme.
-   *
    * @param {Bateau} bateau - Le bateau dont on applique la fonction sur ses zones interdites et sur lui meme.
    * @param {Function} fonction_zone_interdite - La fonction a appliquer sur les cases qui sont des zones interdites du bateau.
    * @param {Function} [fonction_case_bateau=fonction_zone_interdite] - La fonction a appliquer sur les cases qui sont le bateau lui meme.
@@ -396,6 +426,7 @@ class Grille {
       const bateau_cellule = cellule.bateau;
       const bateau_cellule_debut = cellule.bateau.coord_debut;
 
+      /*en fonction de la direction du bateau, on modifie la cases toucher du bateau*/
       if (bateau_cellule.direction == Direction.HORIZONTAL) {
         bateau_cellule.cases_est_touche[coord.x - bateau_cellule_debut.x] =
           valeur;

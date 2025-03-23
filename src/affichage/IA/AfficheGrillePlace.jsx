@@ -20,12 +20,28 @@ function AfficheGrillePlace() {
 //creation du context local a ce fichier
 const LocalContext = createContext();
 /*eslint-disable react/prop-types */
+
+
 function LocalContextProvider({ children }) {
+
+  /**
+   * @type {number} indice du bateau selectionne dans la liste des bateaux a placer
+   */
   const [indiceBateauSelectionne, setIndiceBateauSelectionne] = useState(null);
-  const [localRefresh, setLocalRefresh] = useState(0);
+
+  /**
+   * @type {number} variable pour forcer le refresh du composant
+   */
+  const [, setLocalRefresh] = useState(0);
+
+  /**
+   * @type {Direction} direction du bateau a placer
+   */
   const direction = useRef(Direction.HORIZONTAL);
+  
+  //force le refresh du composant
   const forceLocalRefresh = () => {
-    setLocalRefresh(localRefresh == 0 ? 1 : 0);
+    setLocalRefresh({});
   };
 
   return (
@@ -54,6 +70,10 @@ const Mode = Object.freeze({
  * @returns {JSX.Element} un JSX Element representant la grille et les boutons.
  */
 function InitGrille() {
+
+  /**
+   * @type {Array<{text: string, mode: Mode}>} - contenu des boutons affiché pour choisir l'action a faire
+   */
   const button_contenu = [
     { text: "Ajouter bateau", mode: Mode.AJOUTER },
     { text: "Deplacer bateau", mode: Mode.DEPLACER },
@@ -68,15 +88,23 @@ function InitGrille() {
   } = useContext(LocalContext);
 
 
-  //fait apparaitre les boutons quand tout les bateau sont placer
+  /**
+  * @type {boolean} - variable qui permet de savoir si tout les bateaux sont placer
+  **/
   const [peutCommencer, setPeutCommencer] = useState(false);
+
+
   const [boutonSelectionner, setBoutonSelectionner] = useState(null);
   const mode = useRef(Mode.AJOUTER);
+
+  /**
+   * @type {Bateau} - bateau selectionne pour le deplacement
+   */
   const bateau_selectionne = useRef(null);
 
 
-  //fait apparaitre les boutons quand tout les bateau sont placer
-  //à chaque render ou les retirer
+  /*fait apparaitre les boutons quand tout les bateau sont placer
+    à chaque render ou les retire s'il reste des bateaux a placer ou non*/
   useEffect(() => {
     if (joueur.grille.bateaux_a_placer.length == 0) {
       setPeutCommencer(true);
@@ -95,11 +123,15 @@ function InitGrille() {
     if (cellule.interdit >= 1)  return "interdit";
     return "vide";
   }
-  //gere les clique sur la grille
-  function interagirGrille({ coord }) {
-    if (indiceBateauSelectionne != null && mode.current == Mode.AJOUTER) {
-      joueur.ajouterBateauGrille(indiceBateauSelectionne, coord);
 
+  
+  //ajoute un bateau sur la grille ou le deplace
+  function interagirGrille({ coord }) {
+
+    //ajoute le bateau à la grille. Le bateau est selectionne AffichePlacage
+    if (indiceBateauSelectionne != null && mode.current == Mode.AJOUTER) {
+
+      joueur.ajouterBateauGrille(indiceBateauSelectionne, coord);
       /*verifie si tout les bateau sont placer et fait apparaitre le bouton
       de commencer la partie*/
       if (
@@ -113,9 +145,13 @@ function InitGrille() {
 
     //deplace le bateau selectionne ou en selectionne un s'il est présent
     if (mode.current == Mode.DEPLACER) {
+
+      //si aucun bateau n'est selectionne, on le selectionne en cliquant sur un bateau de la grille
       if (bateau_selectionne.current == null) {
         bateau_selectionne.current = joueur.grille.getCellule(coord).bateau;
       } else {
+
+        //si un bateau est selectionne, on le deplace
         joueur.grille.changerCoordBateau(
           bateau_selectionne.current,
           coord,
@@ -127,15 +163,17 @@ function InitGrille() {
     }
   }
 
-  //change l'action de la souris
+  //change l'action de la souris (deplacer ou ajouter) et change la couleur du boutton correpondant a l'action
   function changeMode(button_index, modeToChange) {
     mode.current = modeToChange;
     setBoutonSelectionner(button_index);
   }
 
+  //passe a l'ecran suivant
   function afficheEcranSuivant(){
       jeu.ecran=Ecran.TIRER
-      console.log("message")
+      jeu.init_tour_joueurs()
+      console.log("actions restantes",jeu.joueur1.actions_restantes)
       jeu.joueur2.ajouterBateauAleatoire()
       forceRefreshJeu();
 }
@@ -179,23 +217,27 @@ function InitGrille() {
  */
 const AffichePlacage = () => {
   const { joueur } = useContext(JeuContext);
-  const { setIndiceBateauSelectionne, indiceBateauSelectionne, direction } =
+  const { setIndiceBateauSelectionne, indiceBateauSelectionne, direction} =
     useContext(LocalContext);
+  
   const bateaux_a_placer = joueur.grille.bateaux_a_placer;
 
-  //selectionne un bateau  en cliquant sur la liste
+  //selectionne un bateau  en cliquant sur la liste et change sa direction
   const selectionnerBateau = (indice_list) => {
     const bateau = bateaux_a_placer[indice_list].bateau;
-    setIndiceBateauSelectionne(indice_list);
+    console.log(direction.current)
     bateau.changer_direction(direction.current);
+    console.log(bateau.direction)
+    setIndiceBateauSelectionne(indice_list);
   };
 
-  //change la direction du bateau qui va etre placer
+  //change la direction du bateau qui va etre placer dans la liste
   const changerDirection = ({ target }) => {
-    direction.current =
-      target.value == "horizontal" ? Direction.HORIZONTAL : Direction.VERTICAL;
+    direction.current = target.value
+
+    //si un bateau etait selectionner alors on change sa direction
     if (indiceBateauSelectionne != null) {
-      const bateau = joueur.bateaux_a_placer[indiceBateauSelectionne].bateau;
+      const bateau = joueur.grille.bateaux_a_placer[indiceBateauSelectionne].bateau;
       bateau.changer_direction(direction.current);
     }
   };
@@ -207,7 +249,7 @@ const AffichePlacage = () => {
           <input
             type="radio"
             name="direction"
-            value={"horizontal"}
+            value={Direction.HORIZONTAL}
             onChange={changerDirection}
             defaultChecked
           />
@@ -217,7 +259,7 @@ const AffichePlacage = () => {
           <input
             type="radio"
             name="direction"
-            value={"vertical"}
+            value={Direction.VERTICAL}
             onChange={changerDirection}
           />
           vertical

@@ -3,6 +3,7 @@ const Ecran=Object.freeze({
     DEPLACER:"deplacer",
     TIRER:"tirer",
     GAGNER:"gagner",
-    ATTENTE:"attente"
+    ATTENTE:"attente",
+    CLIENT:"client"
 })
 export default Ecran;

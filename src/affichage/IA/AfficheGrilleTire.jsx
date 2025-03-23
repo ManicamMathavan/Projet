@@ -9,6 +9,8 @@ import AfficheGrille from "../AfficheGrille";
 
 function AfficheGrilleTire (){
     const {joueur,forceRefreshJeu,jeu,jeuRefresh} = useContext(JeuContext);
+
+    //contient les ordonner et les abcisse si le joueur tire via coordoner
     const [abscisse,setAbscisse] = useState("A")
     const [ordonnee,setOrdonnee] = useState(1)
     const peutTirer= useRef(true)
@@ -21,14 +23,16 @@ function AfficheGrilleTire (){
     function changeAbscisse({target}){
       const text=target.value  
       const text_to_abscisse=text.charCodeAt(0)-"A".charCodeAt(0)
+      //verifie si le code ascci a bien une valeur comprise dans la grille 
       if(text.length==0 || (text.length==1 && text_to_abscisse<joueur.grille.largeur && text_to_abscisse>=0)){
         setAbscisse(target.value)
     }
   }
 
+  //change la valeur de l'ordonner si elle est comprise dans la grille
   function changeOrdonne({target}){
     const text_number=target.value
-    if(text_number.length=='' || text_number>=1 && text_number<=joueur.grille.hauteur){
+    if(text_number.length==0 || text_number>=1 && text_number<=joueur.grille.hauteur){
       setOrdonnee(text_number)
   }
 }
@@ -59,7 +63,7 @@ function AfficheGrilleTire (){
 
 
       function tirerCellule(coord){
-        console.log(jeu.tour_joueur)
+
         if(peutTirer.current){
         peutTirer.current=false
         joueur.tirer(coord)
@@ -68,13 +72,21 @@ function AfficheGrilleTire (){
           forceRefreshJeu()
           return;
         }
+
+        if(jeu.change_tour_joueur()){
+          while(jeu.joueur2.actions_restantes>0){
         jeu.joueur2.actionAleatoire()
+          }
+
+        jeu.change_tour_joueur()
+
         if(jeu.joueur2.aGagne()){
           jeu.change_tour_joueur()
           jeu.ecran=Ecran.GAGNER
           forceRefreshJeu()
           return;
         }
+      }
         forceRefreshJeu()
       }
     }
@@ -87,6 +99,9 @@ function AfficheGrilleTire (){
         let copie_abscisse=abscisse
         let copie_ordonnee=ordonnee
         if(copie_abscisse!='' && copie_ordonnee!=''){
+
+          /*on convertit les lettre de l'abscisse en nombre et on decremente l'ordonnee pour
+          qu'il soit exploitable dans la grille et on tire a ces coordonnées*/
           copie_abscisse=copie_abscisse.charCodeAt(0)-"A".charCodeAt(0)
           copie_ordonnee=parseInt(copie_ordonnee)-1
           tirerCellule(new Coord(copie_abscisse,copie_ordonnee))
@@ -104,7 +119,7 @@ function AfficheGrilleTire (){
     
     return (
       <>
-      <p> {jeu.tour_joueur == 1 ? "joueur1" : "joueur2"}</p>
+      <p> {jeu.tour_joueur == 1 ? "joueur1" : "joueur2"} nb de tour restant {joueur.actions_restantes}</p>
       <AfficheGrille change_class={change_class} onClickCell={tirerViaGrille} grille={joueur.grilleAdverse}></AfficheGrille>   
         <label htmlFor="abscisse">abscisse : </label>
         <input type="text" value={abscisse} onChange={(e) => changeAbscisse(e)} />

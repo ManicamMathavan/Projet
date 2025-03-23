@@ -3,6 +3,13 @@ import JeuContext from "../Context.jsx";
 import Coord from "../Divers/Coord.js";
 
 /*eslint-disable react/prop-types */
+
+
+/**
+ * @param {function} onClickCell - fonction pour gérer le click sur une cellule
+ * @param {function} change_class - fonction pour changer pour rendre visible ou non les element de la grille
+ * @param {Grille} grille - la grille à afficher
+ */
 function AfficheGrille({onClickCell,change_class,grille}){
     useContext(JeuContext)
     return (

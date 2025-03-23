@@ -1,10 +1,11 @@
 import { createContext, useContext, useEffect, useRef, useState } from "react";
-import { client_socket } from "../../../connexion/client";
+import { client_socket, closeClient } from "../../../connexion/client";
 import Bateau from "../../Bateau";
 import JeuContext from "../../Context";
 import Direction from "../../Divers/Direction";
 import Ecran from "../../Divers/Ecran";
 import Etat from "../../Divers/Etat";
+import ModeJeu from "../../Divers/ModeJeu";
 import AfficheGrille from "../AfficheGrille";
 
 function AfficheGrillePlace() {
@@ -22,8 +23,19 @@ function AfficheGrillePlace() {
 const LocalContext = createContext();
 /*eslint-disable react/prop-types */
 function LocalContextProvider({ children }) {
+  /**
+   * @type {number} indice du bateau selectionne dans la liste des bateaux a placer
+   */
   const [indiceBateauSelectionne, setIndiceBateauSelectionne] = useState(null);
+
+  /**
+   * @type {number} variable pour forcer le refresh du composant
+   */
   const [localRefresh, setLocalRefresh] = useState(0);
+
+  /**
+   * @type {Direction} direction du bateau a placer qu'on changera
+   */
   const direction = useRef(Direction.HORIZONTAL);
   const forceLocalRefresh = () => {
     setLocalRefresh(localRefresh == 0 ? 1 : 0);
@@ -75,14 +87,15 @@ function InitGrille() {
   const mode = useRef(Mode.AJOUTER);
   const bateau_selectionne = useRef(null);
 
-  //fait apparaitre les boutons quand tout les bateau sont placer
-  //à chaque render ou les retirer
+  /*fait apparaitre le bouton commencer quand tout les bateau sont placer
+  à chaque render ou les retirer*/
   useEffect(() => {
     if (joueur.grille.bateaux_a_placer.length == 0) {
       setPeutCommencer(true);
     } else {
       setPeutCommencer(false);
     }
+
     /*le messsage pour commencer la partie est faux
     a chaque refresh du jeu mais pas au refreshlocal*/
     aEnvoyerMsg.current = false;
@@ -90,30 +103,38 @@ function InitGrille() {
     client_socket.onmessage = ({ data: message }) => {
       const contenu_message = JSON.parse(message);
 
+      /*quand les 2 joueur sont pret, ils envoient un message "commencer_tirer", puis s'envoi leur bateau_restants*/ 
       if (contenu_message.type == "commencer_tirer") {
-        console.log("donner base", joueur.grille.bateaux_restants);
         client_socket.send(
           JSON.stringify({ type: "grille", bateaux: joueur.grille.bateaux_restants })
         );
         return;
       }
+      /*quand un joueur recoit les bateaux de l'autre joueur, il les ajoute a sa grille*/
       if (contenu_message.type == "grille") {
         const bateaux_adverse_actuel = joueur.grilleAdverse.bateaux_restants;
         const bateaux_adverse_recu=contenu_message.bateaux;
     
+          //transformer le json en bateau et les ajouter a la grille
           bateaux_adverse_recu.forEach((bateau) => {
             const instance=new Bateau(bateau.nom,bateau.taille,bateau.direction,bateau.coord_debut.x,bateau.coord_debut.y)
             bateaux_adverse_actuel.push(instance);
             joueur.grilleAdverse.ajouterBateau(instance);
           })
 
-
-          console.log("grille_adverse",joueur.grilleAdverse.grille);
-          console.log("message", message);
-          console.log("adverse", bateaux_adverse_actuel);
+          //initialiser les tour restants et commencer la partie
+          jeu.init_tour_joueurs();
+          console.log("jeu",jeu)
           jeu.ecran = Ecran.TIRER;
           forceRefreshJeu();
           return;
+        }
+
+        /*quand un des clients se deconnecte, on retourne au menu principal et le client se ferme*/
+        if(contenu_message.type=="deconnexion"){
+          jeu.changer_mode_jeu(ModeJeu.AUCUN)
+          closeClient()
+          forceRefreshJeu()
         }
       }
   
@@ -136,6 +157,8 @@ function InitGrille() {
   }
   //gere les clique sur la grille
   function interagirGrille({ coord }) {
+
+
     if (indiceBateauSelectionne != null && mode.current == Mode.AJOUTER) {
       joueur.ajouterBateauGrille(indiceBateauSelectionne, coord);
       /*verifie si tout les bateau sont placer et fait apparaitre le bouton
@@ -149,7 +172,7 @@ function InitGrille() {
       setIndiceBateauSelectionne(null);
     }
 
-    //deplace le bateau selectionne ou en selectionne un s'il est présent
+    //deplace le bateau selectionné ou en selectionne un s'il est présent
     if (mode.current == Mode.DEPLACER) {
       if (bateau_selectionne.current == null) {
         bateau_selectionne.current = joueur.grille.getCellule(coord).bateau;
@@ -165,16 +188,20 @@ function InitGrille() {
     }
   }
 
-  //change l'action de la souris
+  //change l'action de la souris et met en rouge le bouton correspondant au mode
   function changeMode(button_index, modeToChange) {
     mode.current = modeToChange;
     setBoutonSelectionner(button_index);
   }
 
   function joueurPret() {
+    /*envoie un message au serveur pour dire que le joueur est pret
+     quand on clique sur commencer (se declenche 1 fois) quand tout les
+     clients sont pret, le serveur envoie un message "commencer_tirer"*/
     if (!aEnvoyerMsg.current) {
       client_socket.send(JSON.stringify({ type: "pret" }));
       aEnvoyerMsg.current = true;
+      console.log(jeu)
     }
   }
 
@@ -227,7 +254,7 @@ const AffichePlacage = () => {
     direction.current =
       target.value == "horizontal" ? Direction.HORIZONTAL : Direction.VERTICAL;
     if (indiceBateauSelectionne != null) {
-      const bateau = joueur.bateaux_a_placer[indiceBateauSelectionne].bateau;
+      const bateau = joueur.grille.bateaux_a_placer[indiceBateauSelectionne].bateau;
       bateau.changer_direction(direction.current);
     }
   };

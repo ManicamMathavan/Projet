@@ -21,11 +21,24 @@ function AfficheGrillePlace() {
 const LocalContext = createContext();
 /*eslint-disable react/prop-types */
 function LocalContextProvider({ children }) {
+
+  /**
+   * @type {number} indice du bateau selectionne dans la liste des bateaux a placer
+   */
   const [indiceBateauSelectionne, setIndiceBateauSelectionne] = useState(null);
-  const [localRefresh, setLocalRefresh] = useState(0);
+
+  /**
+   * @type {number} variable pour forcer le refresh du composant
+   */
+  const [, setLocalRefresh] = useState(0);
+
+  /**
+   * @type {Direction} direction du bateau a placer
+   */
   const direction = useRef(Direction.HORIZONTAL);
+  
   const forceLocalRefresh = () => {
-    setLocalRefresh(localRefresh == 0 ? 1 : 0);
+    setLocalRefresh({});
   };
 
   return (
@@ -68,15 +81,27 @@ function InitGrille() {
   } = useContext(LocalContext);
 
 
-  //fait apparaitre les boutons quand tout les bateau sont placer
+  /**
+   * @type {boolean} sert a faire apparaitre le bouton commencer si tout les bateaux sont placer
+   */
   const [peutCommencer, setPeutCommencer] = useState(false);
+
+  /**
+   * @type {number} permet de mettre en rouge le bouton contenant le mode d'action (ajouter ou deplacer)
+   */
   const [boutonSelectionner, setBoutonSelectionner] = useState(null);
+
+  /**
+   * @type {Mode} mode d'action de la souris (ajouter ou déplacer)
+   */
   const mode = useRef(Mode.AJOUTER);
+
+
   const bateau_selectionne = useRef(null);
 
 
-  //fait apparaitre les boutons quand tout les bateau sont placer
-  //à chaque render ou les retirer
+  /*fait apparaitre le bouton commencer quand tout les bateau sont placer
+  à chaque render ou les retirer*/
   useEffect(() => {
     if (joueur.grille.bateaux_a_placer.length == 0) {
       setPeutCommencer(true);
@@ -97,6 +122,7 @@ function InitGrille() {
   }
   //gere les clique sur la grille
   function interagirGrille({ coord }) {
+
     if (indiceBateauSelectionne != null && mode.current == Mode.AJOUTER) {
       joueur.ajouterBateauGrille(indiceBateauSelectionne, coord);
 
@@ -113,9 +139,12 @@ function InitGrille() {
 
     //deplace le bateau selectionne ou en selectionne un s'il est présent
     if (mode.current == Mode.DEPLACER) {
+
+      //si aucun bateau n'est selectionner, en selectionne un
       if (bateau_selectionne.current == null) {
         bateau_selectionne.current = joueur.grille.getCellule(coord).bateau;
       } else {
+        //si un bateau est selectionne, on le deplace à l'endroit du clique
         joueur.grille.changerCoordBateau(
           bateau_selectionne.current,
           coord,
@@ -134,12 +163,18 @@ function InitGrille() {
   }
 
   function afficheEcranSuivant(){
+    //change de tour si le joueur 1 joue
     if (jeu.tour_joueur == 1) {
-      jeu.change_tour_joueur();
-    } else {
-      jeu.change_tour_joueur();
+      jeu.reverse_tour_joueur();
+
+      /*change de tour et initialise les actions restantes des 2 joueur
+      quand le joueur2 a placer ses bateaux, puis affiche l'ecran de tir pour commencer le jeu*/
+    } else { 
+      jeu.reverse_tour_joueur();
+      jeu.init_tour_joueurs()
       jeu.ecran = Ecran.TIRER;
     }
+
     forceRefreshJeu();
   }
 
@@ -183,10 +218,10 @@ function InitGrille() {
 const AffichePlacage = () => {
   const { joueur } = useContext(JeuContext);
   const { setIndiceBateauSelectionne, indiceBateauSelectionne, direction } =
-    useContext(LocalContext);
+  useContext(LocalContext);
   const bateaux_a_placer = joueur.grille.bateaux_a_placer;
 
-  //selectionne un bateau  en cliquant sur la liste
+  //selectionne un bateau en cliquant sur la liste et lui change sa direction
   const selectionnerBateau = (indice_list) => {
     const bateau = bateaux_a_placer[indice_list].bateau;
     setIndiceBateauSelectionne(indice_list);
@@ -195,8 +230,7 @@ const AffichePlacage = () => {
 
   //change la direction du bateau qui va etre placer
   const changerDirection = ({ target }) => {
-    direction.current =
-      target.value == "horizontal" ? Direction.HORIZONTAL : Direction.VERTICAL;
+    direction.current = target.value 
     if (indiceBateauSelectionne != null) {
       const bateau = joueur.bateaux_a_placer[indiceBateauSelectionne].bateau;
       bateau.changer_direction(direction.current);

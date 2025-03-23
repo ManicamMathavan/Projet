@@ -34,17 +34,15 @@ class Bateau {
     return this.#direction;
   }
    
+  /**
+   * Change la direction du bateau et change ses coordonnes si sa direction est changé.
+   * @param {Direction} direction - La nouvelle direction du bateau.
+   */
   changer_direction(direction){
     if (direction==this.#direction){
       return;
     }
-
-  if(this.#direction==Direction.HORIZONTAL){
-      this.#direction=Direction.VERTICAL
-  }
-  else{
-    this.#direction=Direction.HORIZONTAL
-  }
+  this.#direction = direction
   this.change_coord(this.#coord_debut)
 }
 
@@ -132,6 +130,10 @@ class Bateau {
 
 
 
+  /**
+   * Verifie si le bateau est detruit.
+   * @returns {boolean} - Vrai si le bateau est detruit.
+   */
   estDetruit(){
     //verifier si toute les cases sont detruite
     return !this.cases_est_touche.includes(false);

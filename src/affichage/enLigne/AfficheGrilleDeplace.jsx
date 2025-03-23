@@ -1,9 +1,10 @@
 
 import { useContext, useEffect, useRef, useState } from 'react';
-import { client_socket } from '../../../connexion/client';
+import { client_socket, closeClient } from '../../../connexion/client';
 import JeuContext from '../../Context';
 import Ecran from '../../Divers/Ecran';
 import Etat from '../../Divers/Etat';
+import ModeJeu from '../../Divers/ModeJeu';
 import Sens from '../../Divers/Sens';
 import AfficheGrille from "../AfficheGrille";
 function AfficheGrilleDeplace(){
@@ -26,6 +27,7 @@ function AfficheGrilleDeplace(){
         peutDeplacer.current=false       
       }
       client_socket.onmessage = ({data: message})=>{
+        //effectue les actions reciproques aux joueurs adverse dans son propre jeu
         const contenu_message=JSON.parse(message)
         console.log(contenu_message.type)
         if(contenu_message.type=="tirer"){
@@ -41,6 +43,11 @@ function AfficheGrilleDeplace(){
           jeu.change_tour_joueur()
           forceLocalRefresh()
           return
+        }
+        if(contenu_message.type=="deconnexion"){
+          jeu.changer_mode_jeu(ModeJeu.AUCUN)
+          closeClient()
+          forceRefreshJeu()
         }
       }
     //eslint-disable-next-line react-hooks/exhaustive-deps
@@ -94,16 +101,17 @@ function AfficheGrilleDeplace(){
 
       //deplacer le bateauSelectionne
       function deplacerBateau(){
+        /*verifie si le bateau est selectionne et si il peut etre deplacer
+          puis le deplace et envoie la commande au serveur*/
         if(bateauSelectionne && peutDeplacer.current){
             peutDeplacer.current=false
-            jeu.change_tour_joueur()
-            console.log("grilleAMoi",bateauSelectionne)
             const dataToSend=JSON.stringify({type:"deplacer",coord:{x:bateauSelectionne.coord_debut.x,y:bateauSelectionne.coord_debut.y},sens:{x:sens.current.x,y:sens.current.y}})
             client_socket.send(dataToSend)    
             joueur.deplacerBateau(bateauSelectionne,sens.current)
+            jeu.change_tour_joueur()
             setBateauSelectionne(null)
-            // //afficher les changement
-            // forceLocalRefresh()
+            //afficher les changement
+            forceLocalRefresh()
         }
       }
       

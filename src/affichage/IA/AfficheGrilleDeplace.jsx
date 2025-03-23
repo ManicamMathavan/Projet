@@ -17,8 +17,13 @@ function AfficheGrilleDeplace(){
 
     //refresh peut deplacer quand le jeu refresh
     useEffect(() => {
+
+      if(joueur.actions_restantes>0){
       peutDeplacer.current=true
-    }, [jeuRefresh]);
+      }else{
+        peutDeplacer.current=false
+      }
+    }, [jeuRefresh,joueur.actions_restantes,localRefresh]);
 
 
 
@@ -68,23 +73,22 @@ function AfficheGrilleDeplace(){
 
       //deplacer le bateauSelectionne
       function deplacerBateau(){
-        if(bateauSelectionne && peutDeplacer.current){
+        if(bateauSelectionne && peutDeplacer.current){ 
             peutDeplacer.current=false
             joueur.deplacerBateau(bateauSelectionne,sens.current)
-            //afficher les changement
+
+            //l'IA joue jusqu'a qu'elle n'ai plus d'action
+            if(jeu.change_tour_joueur()){
+              while(jeu.joueur2.actions_restantes>0){
+            jeu.joueur2.actionAleatoire()
+              }
+            }
+            jeu.change_tour_joueur()
             forceLocalRefresh()
-            afficheEcranSuivant()
-        }
-      }
+          }
       
-      function afficheEcranSuivant(){
-        jeu.ecran=Ecran.TIRER
-        jeu.change_tour_joueur() 
-        //affiche l'ecran suivant apres 1 seconde
-        setTimeout(() => {
-          forceRefreshJeu()
-        },1000)
-      }
+    }
+
 
       //affiche l'ecran de tire quand le bouton est cliqué
       function afficheEcranTirer(){
@@ -95,7 +99,7 @@ function AfficheGrilleDeplace(){
 
     return(
         <div>
-            <p>{jeu.tour_joueur==1 ? "Joueur 1" : "Joueur 2"}</p>
+            <p>{jeu.tour_joueur==1 ? "Joueur 1" : "Joueur 2"} nb action {joueur.actions_restantes}</p>
             <AfficheGrille onClickCell={change_bateau_selectionne} change_class={change_class}
             grille={joueur.grille}/>
 
