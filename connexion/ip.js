@@ -6,7 +6,6 @@ function getLocalIP() {
     for (let iface of interfaces[interfaceName]) {
       // Vérifie si c'est une adresse IPv4 et non une adresse de boucle locale
       if (iface.family === 'IPv4' && !iface.internal) {
-        console.log("ip",iface.address)
         return iface.address;
       }
     }

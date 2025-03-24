@@ -1,13 +1,14 @@
 import { useContext, useState } from "react";
 import { client_socket, startClient } from "../../../connexion/client";
+import Bateau from "../../Bateau";
 import JeuContext from "../../Context";
+import BateauNb from "../../Divers/BateauNb";
 import Ecran from "../../Divers/Ecran";
 
 //permet de se connecter en tapant l'adresse ip de l'hote
 function AfficheClient() {
     const {jeu,forceRefreshJeu,joueur}=useContext(JeuContext)
     const [ipInput, setIpInput] = useState('');
-    console.log(joueur)
     function connexion(){
         startClient(ipInput)
 
@@ -28,8 +29,10 @@ function AfficheClient() {
                 et affiche l'ecran pour placer les bateaux
                 */
                 if(contenu_message.type=="bateaux_a_placer"){
-                    console.log("message recu",contenu_message.bateaux);
                     joueur.grille.bateaux_a_placer=(contenu_message.bateaux)
+                    joueur.grille.bateaux_a_placer = contenu_message.bateaux.map(
+                        (element) => new BateauNb(element.nb,new Bateau(element.bateau.nom,element.bateau.taille))
+                      );
                     jeu.ecran=Ecran.AJOUTER
                     forceRefreshJeu()
                 }

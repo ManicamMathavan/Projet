@@ -78,6 +78,7 @@ function AfficheGrilleTire (){
         if(contenu_message.type=="deconnexion"){
           jeu.changer_mode_jeu(ModeJeu.AUCUN)
           closeClient()
+          jeu.reset()
           forceRefreshJeu()
         }
       }
@@ -113,13 +114,13 @@ function AfficheGrilleTire (){
         if (cellule.etat==Etat.COULER){
           return "couler"
         }
-        if(cellule.bateau){
-          return "bateau"
-        }
+        // if(cellule.bateau){
+        //   return "bateau"
+        // }
       
-        if(cellule.interdit>=1){
-          return "interdit"
-        }
+        // if(cellule.interdit>=1){
+        //   return "interdit"
+        // }
         return "vide"
       }
 
@@ -164,7 +165,6 @@ function AfficheGrilleTire (){
       }
       
 
-    console.log(jeu.getJoueurOppose(joueur))
     return (
       <>
       <p> {joueur==jeu.joueur1 ? "joueur1" : "joueur2"} action {joueur.actions_restantes} action adverse {jeu.getJoueurOppose(joueur).actions_restantes && "rien"}</p>

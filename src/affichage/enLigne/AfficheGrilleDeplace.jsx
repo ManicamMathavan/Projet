@@ -19,7 +19,6 @@ function AfficheGrilleDeplace(){
 
     //refresh peut deplacer quand le jeu refresh
     useEffect(() => {
-      console.log("jeu tour joueur",jeu.tour_joueur)
       if(jeu.getJoueurActuel()==joueur){
         peutDeplacer.current=true 
       }
@@ -29,7 +28,6 @@ function AfficheGrilleDeplace(){
       client_socket.onmessage = ({data: message})=>{
         //effectue les actions reciproques aux joueurs adverse dans son propre jeu
         const contenu_message=JSON.parse(message)
-        console.log(contenu_message.type)
         if(contenu_message.type=="tirer"){
           jeu.getJoueurOppose(joueur).tirer(contenu_message.coord)     
           jeu.change_tour_joueur()
@@ -38,7 +36,6 @@ function AfficheGrilleDeplace(){
         }
         if(contenu_message.type=="deplacer"){
           const joueur_oppose=jeu.getJoueurOppose(joueur)
-          console.log("grilleadrese",joueur_oppose.grille.getCellule(contenu_message.coord).bateau)
           joueur_oppose.deplacerBateau(joueur_oppose.grille.getCellule(contenu_message.coord).bateau,contenu_message.sens)
           jeu.change_tour_joueur()
           forceLocalRefresh()
@@ -46,6 +43,7 @@ function AfficheGrilleDeplace(){
         }
         if(contenu_message.type=="deconnexion"){
           jeu.changer_mode_jeu(ModeJeu.AUCUN)
+          jeu.reset()
           closeClient()
           forceRefreshJeu()
         }

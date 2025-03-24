@@ -62,13 +62,13 @@ function AfficheGrilleTire (){
         if (cellule.etat==Etat.COULER){
           return "couler"
         }
-        if(cellule.bateau){
-          return "bateau"
-        }
+        // if(cellule.bateau){
+        //   return "bateau"
+        // }
       
-        if(cellule.interdit>=1){
-          return "interdit"
-        }
+        // if(cellule.interdit>=1){
+        //   return "interdit"
+        // }
         return "vide"
       }
 

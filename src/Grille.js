@@ -282,7 +282,6 @@ class Grille {
       this.#estContenu(bateau.coord_debut) == false ||
       this.#estContenu(bateau.coord_fin) == false
     ) {
-      console.log(bateau)
       return false;
     }
 

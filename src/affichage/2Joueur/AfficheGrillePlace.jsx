@@ -125,7 +125,7 @@ function InitGrille() {
 
     if (indiceBateauSelectionne != null && mode.current == Mode.AJOUTER) {
       joueur.ajouterBateauGrille(indiceBateauSelectionne, coord);
-
+      console.log(joueur.grille.grille)
       /*verifie si tout les bateau sont placer et fait apparaitre le bouton
       de commencer la partie*/
       if (

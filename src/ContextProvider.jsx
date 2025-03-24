@@ -20,7 +20,6 @@ function JeuContextProvider({ children, jeu }) {
     const aGagner=false
     const joueur=init_joueur(jeu)
     const [ecran,setEcran]=useState(Ecran.MENU)
-    console.log("joueur",joueur)
     const forceRefreshJeu = () => {
       setJeuRefresh({});
   };

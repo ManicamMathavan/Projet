@@ -30,7 +30,6 @@ class IA {
     let nb_action = 1;
     let porte_avions_trouve = false;
     this.grille.bateaux_restants.forEach((bateau) => {
-      console.log("entrer");
       if (bateau.nom == NomBateau.PORTE_AVIONS) {
         porte_avions_trouve = true;
         nb_action += 1;

@@ -11,7 +11,6 @@ function AfficheMenu() {
     const {forceRefreshJeu,jeu}=useContext(JeuContext)
     function changeMode({target}) {
         jeu.changer_mode_jeu(target.getAttribute("data-value"))
-        console.log(jeu.mode_jeu)
         forceRefreshJeu()
     }
 

@@ -1,19 +1,20 @@
 import { WebSocketServer } from "ws";
 import ip_server from "./ip.js";
 
-let server_socket= new WebSocketServer({port:8080, host:ip_server})
+let server_socket=null
 let clients_sockets=new Set()
 const max_clients=2
 let nb_client_pret=0
-function startServer(){
-server_socket.on('connection', (client_socket,req) => {
-    
-    const clientIP = req.socket.remoteAddress
 
-    /*refuser la connexion si un client externe rejoint le serveur
-    sans que l'hote n'ait ouvert le serveur ou s'il veut rejoindre alors qu'une partie débute*/
-    if((clientIP!=ip_server && (clients_sockets.size==0)) || clients_sockets.size>=max_clients){
-        console.log("fermer la socket client "+clientIP)
+function startServer(){
+if(server_socket!=null) return;
+server_socket=new WebSocketServer({port:8080, host:ip_server})
+server_socket.on('connection', (client_socket) => {
+    
+    
+
+    /*refuser la connexion si on depasse le maximum de joueurs*/
+    if(clients_sockets.size>=max_clients){
         client_socket.close()
         return;
     }
@@ -28,7 +29,6 @@ server_socket.on('connection', (client_socket,req) => {
 
     //commencer le jeu quand il y a assez de joueurs
     if(clients_sockets.size==max_clients){
-        console.log("pret")
     envoyerAuxClients({type:"commencer"})
     }
 
@@ -36,7 +36,6 @@ server_socket.on('connection', (client_socket,req) => {
 
     client_socket.on('message', (message) => {
         const contenu_message=JSON.parse(message)
-        console.log(`Message reçu: ${contenu_message}`);
     /*les client envoient un message quand ils sont pret et le serveur
     le sauvegarde dans*/
      if((contenu_message.type=="pret")){ 
@@ -58,15 +57,26 @@ server_socket.on('connection', (client_socket,req) => {
 
     });
 
-    //quand un client se ferme, les autre sont informé et se ferme à leur tour
+    //quand un client se ferme, les autre sont informé et se ferme à leur tour, le serveur est aussi fermé
     client_socket.on('close', () => {
-        envoyerAuxClients({type:"deconnexion"},client_socket)
+        
+        //ne fait rien si le client se ferme parce que joueur en trop tente de se connecter
+        if(clients_sockets.size>max_clients) return
         clients_sockets.delete(client_socket)
+
+        //demande aux clients de se deconnecter, une fois le serveur fermer, on ignore les déconnexion suivant celle du premier client
+        if(server_socket==null) return
+        envoyerAuxClients({type:"deconnexion"},client_socket)
+        server_socket.close()
+        server_socket=null
     });
 
     
 })
 }
+
+
+
 function envoyerAuxClients(message,client_exeption){
     clients_sockets.forEach((client)=>{
         if(client_exeption==null || client!=client_exeption) {

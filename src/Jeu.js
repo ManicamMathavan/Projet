@@ -219,14 +219,11 @@ class Jeu {
    * en suivant l'énoncé du projet
    */
   genererBateauDefault(){
-    this.genererBateau(new Bateau(NomBateau.PORTE_AVIONS, 5), 1, 1);
-    this.genererBateau(new Bateau(NomBateau.PORTE_AVIONS, 5), 1, 1);
-
-    // this.genererBateau(new Bateau(NomBateau.PORTE_AVIONS, 5), 1, 2);
-    // this.genererBateau(new Bateau(NomBateau.CUIRASSE, 4), 0, 3);
-    // this.genererBateau(new Bateau(NomBateau.SOUS_MARIN, 3), 0, 3);
-    // this.genererBateau(new Bateau(NomBateau.DESTROYER, 3), 0, 3);
-    // this.genererBateau(new Bateau(NomBateau.PATROUILLEUR, 2), 0, 3);
+    this.genererBateau(new Bateau(NomBateau.PORTE_AVIONS, 5), 1, 2);
+    this.genererBateau(new Bateau(NomBateau.CUIRASSE, 4), 0, 3);
+    this.genererBateau(new Bateau(NomBateau.SOUS_MARIN, 3), 0, 3);
+    this.genererBateau(new Bateau(NomBateau.DESTROYER, 3), 0, 3);
+    this.genererBateau(new Bateau(NomBateau.PATROUILLEUR, 2), 0, 3);
   }
 
 }

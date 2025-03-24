@@ -124,7 +124,6 @@ function InitGrille() {
 
           //initialiser les tour restants et commencer la partie
           jeu.init_tour_joueurs();
-          console.log("jeu",jeu)
           jeu.ecran = Ecran.TIRER;
           forceRefreshJeu();
           return;
@@ -133,6 +132,7 @@ function InitGrille() {
         /*quand un des clients se deconnecte, on retourne au menu principal et le client se ferme*/
         if(contenu_message.type=="deconnexion"){
           jeu.changer_mode_jeu(ModeJeu.AUCUN)
+          jeu.reset()
           closeClient()
           forceRefreshJeu()
         }
@@ -201,7 +201,6 @@ function InitGrille() {
     if (!aEnvoyerMsg.current) {
       client_socket.send(JSON.stringify({ type: "pret" }));
       aEnvoyerMsg.current = true;
-      console.log(jeu)
     }
   }
 

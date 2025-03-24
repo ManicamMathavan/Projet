@@ -5,7 +5,6 @@ import { closeClient } from "../connexion/client.js";
 import "./App.css";
 import JeuContext from "./Context.jsx";
 import JeuContextProvider from "./ContextProvider.jsx";
-import Ecran from "./Divers/Ecran.js";
 import ModeJeu from "./Divers/ModeJeu.js";
 import Grille from "./Grille.js";
 import Jeu from "./Jeu.js";
@@ -13,15 +12,13 @@ import Affiche2Joueur from "./affichage/2Joueur/Affiche2Joueur.jsx";
 import AfficheMenu from "./affichage/AfficheMenu.jsx";
 import AfficheIA from "./affichage/IA/AfficheIA.jsx";
 import AfficheEnLigne from "./affichage/enLigne/AfficheEnLigne.jsx";
-// import AfficheGrilleDeplace from './affichage/AfficheGrilleDeplace.jsx';
+const largeur_grille=26
+const hauteur_grille=50
+document.documentElement.style.setProperty("--largeur-grille", largeur_grille);
 
-//import AfficheGrillePlacage from './affichage/AfficheGrillePlace.jsx';
-//import AfficheGrilleTire from './affichage/AfficheGrilleTire.jsx';
-
-let grilleTest = new Grille(10, 10);
+let grilleTest = new Grille(largeur_grille, hauteur_grille);
 let jeu = new Jeu(grilleTest);
 
-jeu.ecran=Ecran.AJOUTER
 function App() {
   return (
     <JeuContextProvider jeu={jeu}>

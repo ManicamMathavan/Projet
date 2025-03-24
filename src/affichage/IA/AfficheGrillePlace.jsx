@@ -173,7 +173,6 @@ function InitGrille() {
   function afficheEcranSuivant(){
       jeu.ecran=Ecran.TIRER
       jeu.init_tour_joueurs()
-      console.log("actions restantes",jeu.joueur1.actions_restantes)
       jeu.joueur2.ajouterBateauAleatoire()
       forceRefreshJeu();
 }
@@ -225,9 +224,7 @@ const AffichePlacage = () => {
   //selectionne un bateau  en cliquant sur la liste et change sa direction
   const selectionnerBateau = (indice_list) => {
     const bateau = bateaux_a_placer[indice_list].bateau;
-    console.log(direction.current)
     bateau.changer_direction(direction.current);
-    console.log(bateau.direction)
     setIndiceBateauSelectionne(indice_list);
   };
 
