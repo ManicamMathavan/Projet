@@ -15,26 +15,28 @@ function AfficheGrille({ onClickCell, change_class, grille }) {
   const tabHauteur = tabNb({ nb: grille.hauteur });
   return (
     <>
-      <div style={{ display: "grid", gridTemplateRows: `repeat(${2}, auto` }}>
+      <div style={{ display: "grid", gridTemplateRows: `repeat(${2}, auto`,gridTemplateColumns: `repeat(${2}, 1fr` }}>
+        <br/>
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: `repeat(${grille.largeur}, 50px)`,
+            gridTemplateColumns: `repeat(${grille.largeur}, auto)`,
+            gridAutoRows: "auto",
             justifyItems: "center",
           }}
         >
           {tabLargeur.map((i) => (
-            <div key={i} style={{marginLeft: "2em"}}>{i}</div>
+            <div key={i}>{i}</div>
           ))}
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: `repeat(${2}, 1fr` }}>
+        {/* <div style={{ display: "grid", gridTemplateColumns: `repeat(${2}, 1fr` }}> */}
           <div
             style={{
               display: "grid",
-              gridTemplateRows: `repeat(${grille.hauteur}, 50px)`,
+              gridTemplateRows: `repeat(${grille.hauteur}, 1fr)`,
               alignItems: "center",
-              justifyItems: "center",
+              justifyItems: "end",
             }}
           >
             {tabHauteur.map((i) => (
@@ -58,7 +60,7 @@ function AfficheGrille({ onClickCell, change_class, grille }) {
             )}
           </div>
         </div>
-      </div>
+      {/* </div> */}
     </>
   );
 }
