@@ -6,8 +6,7 @@ import ip_server from './connexion/ip.js';
 import startServer from './connexion/server.js';
 const port_express=3000
 
-// const a=5
-// startServer()
+
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
