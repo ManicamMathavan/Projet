@@ -1,0 +1,6 @@
+Les étapes du projet ont été les suivantes: 
+- Ajout du diagramme UML
+- Ajout des fonctionnalités de jeu individuel (tir, ajout des bateaux...)
+- Mode de jeu 2 joueurs
+- Mode de jeu contre l'IA
+- Mode de jeu en ligne

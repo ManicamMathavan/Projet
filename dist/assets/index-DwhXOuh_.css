@@ -1,0 +1,1 @@
+:root{--largeur-grille: 26}.grille{display:grid;grid-template-columns:repeat(var(--largeur-grille),50px);grid-auto-rows:50px}.grille>*{border:1px black solid}.vide{background:#f4f4f4}.interdit{background:gray}.bateau{background:#000}.tirer{background:red}.couler{background-color:purple}.toucher{background-color:maroon}

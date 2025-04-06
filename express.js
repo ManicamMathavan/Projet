@@ -1,4 +1,5 @@
 import express from 'express';
+// import open from 'open';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import ip_server from './connexion/ip.js';
@@ -12,7 +13,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 app.use(express.static(path.join(__dirname,"dist")));
 
-app.get("/start_server", (req, res) => {
+app.get("/start_server", (_, res) => {
   startServer()
   res.send("Server started");
 });
