@@ -63,7 +63,6 @@ server_socket.on('connection', (client_socket) => {
         //ne fait rien si le client se ferme parce que joueur en trop tente de se connecter
         if(clients_sockets.size>max_clients) return
         clients_sockets.delete(client_socket)
-
         //demande aux clients de se deconnecter, une fois le serveur fermer, on ignore les déconnexion suivant celle du premier client
         if(server_socket==null) return
         envoyerAuxClients({type:"deconnexion"},client_socket)

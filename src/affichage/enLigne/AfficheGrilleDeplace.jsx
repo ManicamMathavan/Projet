@@ -30,6 +30,11 @@ function AfficheGrilleDeplace(){
         const contenu_message=JSON.parse(message)
         if(contenu_message.type=="tirer"){
           jeu.getJoueurOppose(joueur).tirer(contenu_message.coord)     
+          if(jeu.getJoueurOppose(joueur).aGagne()){
+            jeu.ecran=Ecran.GAGNER
+            forceRefreshJeu()
+            return
+          }     
           jeu.change_tour_joueur()
           forceLocalRefresh()
           return
